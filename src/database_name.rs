@@ -14,7 +14,25 @@ pub enum Error {
     ToDo,
 }
 
-// format: `projects/{project_id}/databases/{database_id}/documents`
+/// A database name.
+///
+/// # Format
+///
+/// `projects/{project_id}/databases/{database_id}/documents`
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::DatabaseName;
+/// use std::str::FromStr;
+///
+/// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database/documents");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DatabaseName {
     database_id: DatabaseId,
@@ -22,6 +40,23 @@ pub struct DatabaseName {
 }
 
 impl DatabaseName {
+    /// Creates a new `DatabaseName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseId,DatabaseName,ProjectId};
+    /// use std::str::FromStr;
+    ///
+    /// let project_id = ProjectId::from_str("my-project")?;
+    /// let database_id = DatabaseId::from_str("my-database")?;
+    /// let database_name = DatabaseName::new(project_id, database_id);
+    /// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database/documents");
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
     pub fn new(project_id: ProjectId, database_id: DatabaseId) -> Self {
         Self {
             database_id,
@@ -29,6 +64,24 @@ impl DatabaseName {
         }
     }
 
+    /// Creates a new `CollectionName` from this `DatabaseName` and `collection_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// assert_eq!(
+    ///     database_name.collection("chatrooms")?,
+    ///     CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
     pub fn collection<E, T>(self, collection_id: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,

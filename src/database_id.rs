@@ -4,6 +4,34 @@ pub enum Error {
     ToDo,
 }
 
+/// A database id.
+///
+/// # Limit
+///
+/// <https://firebase.google.com/docs/firestore/reference/rest/v1/projects.databases/create#query-parameters>
+///
+/// > This value should be 4-63 characters. Valid characters are /[a-z][0-9]-/ with first character a letter and the last a letter or a number. Must not be UUID-like /[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}/.
+/// >
+/// > "(default)" database id is also valid.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::DatabaseId;
+/// use std::str::FromStr;
+///
+/// let database_id = DatabaseId::from_str("my-database")?;
+/// assert_eq!(database_id.as_ref(), "my-database");
+/// assert_eq!(database_id.to_string(), "my-database");
+///
+/// let database_id = DatabaseId::from_str("(default)")?;
+/// assert_eq!(database_id.as_ref(), "(default)");
+/// assert_eq!(database_id.to_string(), "(default)");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DatabaseId(String);
 

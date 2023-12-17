@@ -4,7 +4,32 @@ pub enum Error {
     ToDo,
 }
 
-/// limit: <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
+/// A collection id.
+///
+/// # Limit
+///
+/// <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
+///
+/// > - Must be valid UTF-8 characters
+/// > - Must be no longer than 1,500 bytes
+/// > - Cannot contain a forward slash (/)
+/// > - Cannot solely consist of a single period (.) or double periods (..)
+/// > - Cannot match the regular expression __.*__
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::CollectionId;
+/// use std::str::FromStr;
+///
+/// let collection_id = CollectionId::from_str("chatrooms")?;
+/// assert_eq!(collection_id.as_ref(), "chatrooms");
+/// assert_eq!(collection_id.to_string(), "chatrooms");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct CollectionId(String);
 

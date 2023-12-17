@@ -14,8 +14,29 @@ pub enum Error {
     ToDo,
 }
 
-/// format:
-/// - `{database_name}/{collection_path}`
+/// A collection name.
+///
+/// # Format
+///
+/// `{database_name}/{collection_path}`
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::CollectionName;
+/// use std::str::FromStr;
+///
+/// let collection_name = CollectionName::from_str(
+///     "projects/my-project/databases/my-database/documents/chatrooms"
+/// )?;
+/// assert_eq!(
+///     collection_name.to_string(),
+///     "projects/my-project/databases/my-database/documents/chatrooms"
+/// );
+/// #     Ok(())
+/// # }
+/// ```
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct CollectionName {
     collection_path: CollectionPath,
@@ -23,6 +44,25 @@ pub struct CollectionName {
 }
 
 impl CollectionName {
+    /// Creates a new `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,CollectionPath,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let collection_path = CollectionPath::from_str("chatrooms")?;
+    /// let collection_name = CollectionName::new(database_name, collection_path);
+    /// assert_eq!(
+    ///     collection_name.to_string(),
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn new(database_name: DatabaseName, collection_path: CollectionPath) -> Self {
         Self {
             collection_path,
@@ -30,10 +70,50 @@ impl CollectionName {
         }
     }
 
+    /// Returns the `CollectionId` of this `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.collection_id(),
+    ///     &CollectionId::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn collection_id(&self) -> &CollectionId {
         self.collection_path.collection_id()
     }
 
+    /// Creates a new `DocumentName` from this `CollectionName` and `document_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.doc("chatroom1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn doc<E, T>(self, document_id: T) -> Result<DocumentName, Error>
     where
         E: std::fmt::Display,
@@ -47,6 +127,32 @@ impl CollectionName {
         Ok(document_name)
     }
 
+    /// Returns the parent `DocumentName` of this `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(collection_name.parent(), None);
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.parent(),
+    ///     Some(DocumentName::from_str(
+    ///       "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn parent(self) -> Option<DocumentName> {
         Option::<DocumentPath>::from(self.collection_path)
             .map(|document_path| DocumentName::new(self.database_name, document_path))

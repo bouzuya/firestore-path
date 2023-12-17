@@ -4,6 +4,33 @@ pub enum Error {
     ToDo,
 }
 
+/// A project id.
+///
+/// # Limit
+///
+/// <https://cloud.google.com/resource-manager/docs/creating-managing-projects>
+///
+/// > - Must be 6 to 30 characters in length.
+/// > - Can only contain lowercase letters, numbers, and hyphens.
+/// > - Must start with a letter.
+/// > - Cannot end with a hyphen.
+/// > - Cannot be in use or previously used; this includes deleted projects.
+/// > - Cannot contain restricted strings, such as google, null, undefined, and ssl.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::ProjectId;
+/// use std::str::FromStr;
+///
+/// let project_id = ProjectId::from_str("my-project")?;
+/// assert_eq!(project_id.as_ref(), "my-project");
+/// assert_eq!(project_id.to_string(), "my-project");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct ProjectId(String);
 

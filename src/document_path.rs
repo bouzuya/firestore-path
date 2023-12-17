@@ -14,7 +14,25 @@ pub enum Error {
     ToDo,
 }
 
-/// format: `{collection_path}/{document_id}`
+/// A document path.
+///
+/// # Format
+///
+/// `{collection_path}/{document_id}`
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::DocumentPath;
+/// use std::str::FromStr;
+///
+/// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+/// assert_eq!(document_path.to_string(), "chatrooms/chatroom1");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DocumentPath {
     collection_path: Box<CollectionPath>,
@@ -22,6 +40,23 @@ pub struct DocumentPath {
 }
 
 impl DocumentPath {
+    /// Creates a new `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentId,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_path = CollectionPath::from_str("chatrooms")?;
+    /// let document_id = DocumentId::from_str("chatroom1")?;
+    /// let document_path = DocumentPath::new(collection_path, document_id);
+    /// assert_eq!(document_path.to_string(), "chatrooms/chatroom1");
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
     pub fn new(collection_path: CollectionPath, document_id: DocumentId) -> Self {
         Self {
             collection_path: Box::new(collection_path),
@@ -29,6 +64,23 @@ impl DocumentPath {
         }
     }
 
+    /// Creates a new `DocumentPath` from this `DocumentPath` and `collection_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.collection("messages")?,
+    ///     CollectionPath::from_str("chatrooms/chatroom1/messages")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn collection<E, T>(self, collection_id: T) -> Result<CollectionPath, Error>
     where
         E: std::fmt::Display,
@@ -41,10 +93,44 @@ impl DocumentPath {
         Ok(collection_path)
     }
 
+    /// Returns the `DocumentId` of this `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentId,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.document_id(),
+    ///     &DocumentId::from_str("chatroom1")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn document_id(&self) -> &DocumentId {
         &self.document_id
     }
 
+    /// Returns the parent `CollectionPath` of this `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.parent(),
+    ///     &CollectionPath::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn parent(&self) -> &CollectionPath {
         self.collection_path.as_ref()
     }

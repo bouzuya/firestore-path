@@ -4,6 +4,33 @@ pub enum Error {
     ToDo,
 }
 
+/// A document id.
+///
+/// # Limit
+///
+/// <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
+///
+/// > - Must be valid UTF-8 characters
+/// > - Must be no longer than 1,500 bytes
+/// > - Cannot contain a forward slash (/)
+/// > - Cannot solely consist of a single period (.) or double periods (..)
+/// > - Cannot match the regular expression __.*__
+/// > - If you import Datastore entities into a Firestore database, numeric entity IDs are exposed as __id[0-9]+__
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use firestore_path::DocumentId;
+/// use std::str::FromStr;
+///
+/// let document_id = DocumentId::from_str("chatroom1")?;
+/// assert_eq!(document_id.as_ref(), "chatroom1");
+/// assert_eq!(document_id.to_string(), "chatroom1");
+/// #     Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DocumentId(String);
 
