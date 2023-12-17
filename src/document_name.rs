@@ -103,6 +103,30 @@ impl DocumentName {
         ))
     }
 
+    /// Returns the `DatabaseName` of this `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.database_name(),
+    ///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn database_name(&self) -> &DatabaseName {
+        &self.database_name
+    }
+
     /// Returns the `DocumentId` of this `DocumentName`.
     ///
     /// # Examples
@@ -148,6 +172,12 @@ impl DocumentName {
     ///
     pub fn parent(self) -> CollectionName {
         CollectionName::new(self.database_name, CollectionPath::from(self.document_path))
+    }
+}
+
+impl std::convert::From<DocumentName> for DatabaseName {
+    fn from(document_name: DocumentName) -> Self {
+        document_name.database_name
     }
 }
 
@@ -262,6 +292,18 @@ mod tests {
         assert_eq!(
             document_name.document_id(),
             &DocumentId::from_str("chatroom1")?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_impl_from_database_name_for_document_id() -> anyhow::Result<()> {
+        let document_name = DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+        )?;
+        assert_eq!(
+            DatabaseName::from(document_name),
+            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
         );
         Ok(())
     }
