@@ -93,6 +93,30 @@ impl CollectionName {
         self.collection_path.collection_id()
     }
 
+    /// Returns the `DatabaseName` of this `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseName,CollectionName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.database_name(),
+    ///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn database_name(&self) -> &DatabaseName {
+        &self.database_name
+    }
+
     /// Creates a new `DocumentName` from this `CollectionName` and `document_id`.
     ///
     /// # Examples
@@ -162,6 +186,12 @@ impl CollectionName {
 impl std::convert::From<CollectionName> for CollectionId {
     fn from(collection_name: CollectionName) -> Self {
         Self::from(collection_name.collection_path)
+    }
+}
+
+impl std::convert::From<CollectionName> for DatabaseName {
+    fn from(collection_name: CollectionName) -> Self {
+        collection_name.database_name
     }
 }
 
@@ -285,6 +315,17 @@ mod tests {
         assert_eq!(
             CollectionId::from(collection_name),
             CollectionId::from_str("chatrooms")?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_impl_from_collection_name_for_database_name() -> anyhow::Result<()> {
+        let s = "projects/my-project/databases/my-database/documents/chatrooms";
+        let collection_name = CollectionName::from_str(s)?;
+        assert_eq!(
+            DatabaseName::from(collection_name),
+            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
         );
         Ok(())
     }
