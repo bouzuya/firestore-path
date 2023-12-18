@@ -1,16 +1,9 @@
 use std::str::FromStr;
 
-use crate::{CollectionId, CollectionName, CollectionPath, DatabaseName, DocumentId, DocumentPath};
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("database name {0}")]
-    DatabaseName(#[from] crate::database_name::Error),
-    #[error("document path {0}")]
-    DocumentPath(#[from] crate::document_path::Error),
-    #[error("todo")]
-    ToDo,
-}
+use crate::{
+    error::ErrorKind, CollectionId, CollectionName, CollectionPath, DatabaseName, DocumentId,
+    DocumentPath, Error,
+};
 
 /// A document name.
 ///
@@ -192,13 +185,13 @@ impl std::convert::TryFrom<&str> for DocumentName {
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         // <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
-        if s.len() > 6_144 {
-            return Err(Error::ToDo);
+        if !(1..=6_144).contains(&s.len()) {
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         let parts = s.split('/').collect::<Vec<&str>>();
         if parts.len() < 5 + 2 || (parts.len() - 5) % 2 != 0 {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::InvalidNumberOfPathComponents));
         }
 
         Ok(Self {

@@ -1,18 +1,8 @@
 use std::str::FromStr;
 
-use crate::{CollectionId, CollectionName, CollectionPath, DatabaseId, ProjectId};
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("collection id {0}")]
-    CollectionId(String),
-    #[error("database id {0}")]
-    DatabaseId(#[from] crate::database_id::Error),
-    #[error("project id {0}")]
-    ProjectId(#[from] crate::project_id::Error),
-    #[error("todo")]
-    ToDo,
-}
+use crate::{
+    error::ErrorKind, CollectionId, CollectionName, CollectionPath, DatabaseId, Error, ProjectId,
+};
 
 /// A database name.
 ///
@@ -89,7 +79,7 @@ impl DatabaseName {
     {
         let collection_id = collection_id
             .try_into()
-            .map_err(|e| Error::CollectionId(e.to_string()))?;
+            .map_err(|e| Error::from(ErrorKind::CollectionIdConversion(e.to_string())))?;
         let collection_path = CollectionPath::new(None, collection_id);
         let collection_name = CollectionName::new(self, collection_path);
         Ok(collection_name)
@@ -100,17 +90,16 @@ impl std::convert::TryFrom<&str> for DatabaseName {
     type Error = Error;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
-        if s.len() > 1_024 * 6 {
-            return Err(Error::ToDo);
+        if !(1..=1_024 * 6).contains(&s.len()) {
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         let parts = s.split('/').collect::<Vec<&str>>();
-        if parts.len() != 5
-            || parts[0] != "projects"
-            || parts[2] != "databases"
-            || parts[4] != "documents"
-        {
-            return Err(Error::ToDo);
+        if parts.len() != 5 {
+            return Err(Error::from(ErrorKind::InvalidNumberOfPathComponents));
+        }
+        if parts[0] != "projects" || parts[2] != "databases" || parts[4] != "documents" {
+            return Err(Error::from(ErrorKind::InvalidName));
         }
 
         let project_id = ProjectId::from_str(parts[1])?;
@@ -190,6 +179,7 @@ mod tests {
     #[test]
     fn test_impl_from_str_and_impl_try_from_string() -> anyhow::Result<()> {
         for (s, expected) in [
+            ("", false),
             ("projects/my-project/databases/my-database/documents", true),
             ("x".repeat(1024 * 6 + 1).as_ref(), false),
             ("p/my-project/databases/my-database/documents", false),

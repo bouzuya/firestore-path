@@ -1,8 +1,4 @@
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("todo")]
-    ToDo,
-}
+use crate::{error::ErrorKind, Error};
 
 /// A database id.
 ///
@@ -59,24 +55,23 @@ impl std::convert::TryFrom<String> for DatabaseId {
         }
 
         if !(4..=63).contains(&s.len()) {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         if !s
             .chars()
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
         {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::ContainsInvalidCharacter));
         }
 
         let first_char = s.chars().next().expect("already length checked");
         if !first_char.is_ascii_lowercase() {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::StartsWithNonLetter));
         }
 
-        let last_char = s.chars().next_back().expect("already length checked");
-        if !(last_char.is_ascii_lowercase() || last_char.is_ascii_digit()) {
-            return Err(Error::ToDo);
+        if s.ends_with('-') {
+            return Err(Error::from(ErrorKind::EndsWithHyphen));
         }
 
         Ok(Self(s))
@@ -120,6 +115,7 @@ mod tests {
     #[test]
     fn test_impl_from_str() -> anyhow::Result<()> {
         for (s, expected) in [
+            ("", false),
             ("(default)", true),
             ("(default1)", false),
             ("x".repeat(3).as_str(), false),

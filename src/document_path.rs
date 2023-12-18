@@ -1,18 +1,6 @@
 use std::str::FromStr;
 
-use crate::{CollectionId, CollectionPath, DocumentId};
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("collection id {0}")]
-    CollectionId(String),
-    #[error("collection path {0}")]
-    CollectionPath(#[from] Box<crate::collection_path::Error>),
-    #[error("document id {0}")]
-    DocumentId(#[from] crate::document_id::Error),
-    #[error("todo")]
-    ToDo,
-}
+use crate::{error::ErrorKind, CollectionId, CollectionPath, DocumentId, Error};
 
 /// A document path.
 ///
@@ -88,7 +76,7 @@ impl DocumentPath {
     {
         let collection_id = collection_id
             .try_into()
-            .map_err(|e| Error::CollectionId(e.to_string()))?;
+            .map_err(|e| Error::from(ErrorKind::CollectionIdConversion(e.to_string())))?;
         let collection_path = CollectionPath::new(Some(self), collection_id);
         Ok(collection_path)
     }
@@ -154,13 +142,11 @@ impl std::convert::TryFrom<&str> for DocumentPath {
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         Ok(match s.rsplit_once('/') {
             Some((collection_path, document_id)) => Self {
-                collection_path: Box::new(
-                    CollectionPath::from_str(collection_path).map_err(Box::new)?,
-                ),
+                collection_path: Box::new(CollectionPath::from_str(collection_path)?),
                 document_id: DocumentId::from_str(document_id)?,
             },
             None => {
-                return Err(Error::ToDo);
+                return Err(Error::from(ErrorKind::NotContainsSlash));
             }
         })
     }

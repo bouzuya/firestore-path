@@ -1,18 +1,9 @@
 use std::str::FromStr;
 
-use crate::{CollectionId, CollectionPath, DatabaseName, DocumentId, DocumentName, DocumentPath};
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("collection path {0}")]
-    CollectionPath(#[from] crate::collection_path::Error),
-    #[error("database name {0}")]
-    DatabaseName(#[from] crate::database_name::Error),
-    #[error("document id {0}")]
-    DocumentId(String),
-    #[error("todo")]
-    ToDo,
-}
+use crate::{
+    error::ErrorKind, CollectionId, CollectionPath, DatabaseName, DocumentId, DocumentName,
+    DocumentPath, Error,
+};
 
 /// A collection name.
 ///
@@ -145,7 +136,7 @@ impl CollectionName {
     {
         let document_id = document_id
             .try_into()
-            .map_err(|e| Error::DocumentId(e.to_string()))?;
+            .map_err(|e| Error::from(ErrorKind::DocumentIdConversion(e.to_string())))?;
         let document_path = DocumentPath::new(self.collection_path, document_id);
         let document_name = DocumentName::new(self.database_name, document_path);
         Ok(document_name)
@@ -200,13 +191,13 @@ impl std::convert::TryFrom<&str> for CollectionName {
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         // <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
-        if s.len() > 6_144 {
-            return Err(Error::ToDo);
+        if !(1..=6_144).contains(&s.len()) {
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         let parts = s.split('/').collect::<Vec<&str>>();
         if parts.len() < 5 + 1 || (parts.len() - 5) % 2 == 0 {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::InvalidNumberOfPathComponents));
         }
 
         Ok(Self {
@@ -344,6 +335,7 @@ mod tests {
         let s2 = format!("{}/{}/{}/{}/{}/{}", b, c1, d1, c2, d2, c3_err);
         assert_eq!(s2.len(), 6_145);
         for (s, expected) in [
+            ("", false),
             ("projects/my-project/databases/my-database/documents", false),
             (
                 "projects/my-project/databases/my-database/documents/c",

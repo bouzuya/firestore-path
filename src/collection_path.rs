@@ -1,19 +1,6 @@
 use std::str::FromStr;
 
-use crate::{CollectionId, DocumentId, DocumentPath};
-
-#[derive(Debug, thiserror::Error)]
-#[error("error")]
-pub enum Error {
-    #[error("collection id {0}")]
-    CollectionId(#[from] crate::collection_id::Error),
-    #[error("document id {0}")]
-    DocumentId(String),
-    #[error("document path {0}")]
-    DocumentPath(#[from] crate::document_path::Error),
-    #[error("todo")]
-    ToDo,
-}
+use crate::{error::ErrorKind, CollectionId, DocumentId, DocumentPath, Error};
 
 /// A collection path.
 ///
@@ -110,7 +97,7 @@ impl CollectionPath {
     {
         let document_id = document_id
             .try_into()
-            .map_err(|e| Error::DocumentId(e.to_string()))?;
+            .map_err(|e| Error::from(ErrorKind::DocumentIdConversion(e.to_string())))?;
         let document_path = DocumentPath::new(self, document_id);
         Ok(document_path)
     }

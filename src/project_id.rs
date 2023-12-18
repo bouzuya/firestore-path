@@ -1,8 +1,4 @@
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("todo")]
-    ToDo,
-}
+use crate::{error::ErrorKind, Error};
 
 /// A project id.
 ///
@@ -55,24 +51,24 @@ impl std::convert::TryFrom<String> for ProjectId {
         // <https://cloud.google.com/resource-manager/docs/creating-managing-projects>
 
         if !(6..=30).contains(&s.len()) {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         if !s
             .chars()
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
         {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::ContainsInvalidCharacter));
         }
 
         let first_char = s.chars().next().expect("already length checked");
         if !first_char.is_ascii_lowercase() {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::StartsWithNonLetter));
         }
 
         let last_char = s.chars().next_back().expect("already length checked");
         if last_char == '-' {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::EndsWithHyphen));
         }
 
         if s.contains("google")
@@ -80,7 +76,7 @@ impl std::convert::TryFrom<String> for ProjectId {
             || s.contains("undefined")
             || s.contains("ssl")
         {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::MatchesReservedIdPattern));
         }
 
         Ok(Self(s))

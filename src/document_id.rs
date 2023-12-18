@@ -1,8 +1,4 @@
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("todo")]
-    ToDo,
-}
+use crate::{error::ErrorKind, Error};
 
 /// A document id.
 ///
@@ -53,20 +49,20 @@ impl std::convert::TryFrom<String> for DocumentId {
 
     fn try_from(s: String) -> Result<Self, Self::Error> {
         // <https://firebase.google.com/docs/firestore/quotas#collections_documents_and_fields>
-        if s.len() > 1_500 {
-            return Err(Error::ToDo);
+        if !(1..=1500).contains(&s.len()) {
+            return Err(Error::from(ErrorKind::LengthOutOfBounds));
         }
 
         if s.contains('/') {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::ContainsSlash));
         }
 
         if s == "." || s == ".." {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::SinglePeriodOrDoublePeriods));
         }
 
         if s.starts_with("__") && s.ends_with("__") {
-            return Err(Error::ToDo);
+            return Err(Error::from(ErrorKind::MatchesReservedIdPattern));
         }
 
         // TODO: Datastore entities
@@ -109,6 +105,8 @@ mod tests {
     fn test_impl_from_str_and_impl_try_from_string() -> anyhow::Result<()> {
         for (s, expected) in [
             ("chatroom1", true),
+            ("", false),
+            ("x", true),
             ("x".repeat(1501).as_ref(), false),
             ("x".repeat(1500).as_ref(), true),
             ("chat/room1", false),
