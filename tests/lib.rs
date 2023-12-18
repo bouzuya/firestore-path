@@ -12,10 +12,18 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1",
     )?;
     assert_eq!(
+        document_name.database_name(),
+        &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?,
+    );
+    assert_eq!(
         document_name.document_id(),
         &DocumentId::from_str("message1")?
     );
     let collection_name = document_name.parent();
+    assert_eq!(
+        collection_name.database_name(),
+        &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?,
+    );
     assert_eq!(
         collection_name.collection_id(),
         &CollectionId::from_str("messages")?
