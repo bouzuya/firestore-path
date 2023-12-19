@@ -96,6 +96,29 @@ impl DocumentName {
         ))
     }
 
+    /// Returns the `CollectionId` of this `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.collection_id(),
+    ///     &CollectionId::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn collection_id(&self) -> &CollectionId {
+        self.document_path.collection_id()
+    }
+
     /// Returns the `DatabaseName` of this `DocumentName`.
     ///
     /// # Examples
