@@ -81,6 +81,27 @@ impl DocumentPath {
         Ok(collection_path)
     }
 
+    /// Returns the `CollectionId` of this `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.collection_id(),
+    ///     &CollectionId::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn collection_id(&self) -> &CollectionId {
+        self.collection_path.collection_id()
+    }
+
     /// Returns the `DocumentId` of this `DocumentPath`.
     ///
     /// # Examples
