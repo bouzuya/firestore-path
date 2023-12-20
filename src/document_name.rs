@@ -16,7 +16,8 @@ use crate::{
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use firestore_path::DocumentName;
-/// use std::str::FromStr;
+/// # use firestore_path::{CollectionId,CollectionName,DatabaseName,DocumentId};
+/// # use std::str::FromStr;
 ///
 /// let document_name = DocumentName::from_str(
 ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
@@ -25,6 +26,24 @@ use crate::{
 ///     document_name.to_string(),
 ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
 /// );
+///
+/// assert_eq!(
+///     document_name.clone().collection("messages")?,
+///     CollectionName::from_str(
+///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+///     )?
+/// );
+/// assert_eq!(document_name.collection_id(), &CollectionId::from_str("chatrooms")?);
+/// assert_eq!(
+///     document_name.database_name(),
+///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+/// );
+/// assert_eq!(document_name.document_id(), &DocumentId::from_str("chatroom1")?);
+/// assert_eq!(
+///     document_name.clone().parent(),
+///     CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+/// );
+///
 /// #     Ok(())
 /// # }
 /// ```
