@@ -32,6 +32,10 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
         .parent()
         .context("subcollection should have parent")?;
     assert_eq!(
+        document_name.collection_id(),
+        &CollectionId::from_str("chatrooms")?
+    );
+    assert_eq!(
         document_name.document_id(),
         &DocumentId::from_str("chatroom1")?
     );
@@ -42,6 +46,10 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
     );
 
     let document_path = DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?;
+    assert_eq!(
+        document_path.collection_id(),
+        &CollectionId::from_str("messages")?
+    );
     assert_eq!(
         document_path.document_id(),
         &DocumentId::from_str("message1")?
@@ -54,6 +62,10 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
     let document_path = collection_path
         .parent()
         .context("subcollection should have parent")?;
+    assert_eq!(
+        document_path.collection_id(),
+        &CollectionId::from_str("chatrooms")?
+    );
     assert_eq!(
         document_path.document_id(),
         &DocumentId::from_str("chatroom1")?
