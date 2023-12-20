@@ -174,7 +174,7 @@ impl DocumentName {
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{DatabaseName,DocumentName};
+    /// use firestore_path::{DatabaseName,DocumentName,DocumentPath};
     /// use std::str::FromStr;
     ///
     /// let document_name = DocumentName::from_str(
@@ -190,6 +190,57 @@ impl DocumentName {
     ///
     pub fn database_name(&self) -> &DatabaseName {
         &self.database_name
+    }
+
+    /// Creates a new `DocumentName` from this `DocumentName` and `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentName,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.clone().doc("messages/message1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().doc("messages/message1/col/doc")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        Ok(DocumentName::new(
+            self.database_name,
+            self.document_path.doc(document_path)?,
+        ))
     }
 
     /// Returns the `DocumentId` of this `DocumentName`.
