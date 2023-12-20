@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crate::{error::ErrorKind, CollectionName, CollectionPath, DatabaseId, Error, ProjectId};
+use crate::{
+    error::ErrorKind, CollectionName, CollectionPath, DatabaseId, DocumentName, DocumentPath,
+    Error, ProjectId,
+};
 
 /// A database name.
 ///
@@ -102,6 +105,58 @@ impl DatabaseName {
             .try_into()
             .map_err(|e| Error::from(ErrorKind::CollectionPathConversion(e.to_string())))?;
         Ok(CollectionName::new(self, collection_path))
+    }
+
+    /// Creates a new `DocumentName` from this `DatabaseName` and `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentName,DocumentPath,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str(
+    ///     "projects/my-project/databases/my-database/documents"
+    /// )?;
+    /// assert_eq!(
+    ///     database_name.clone().doc("chatrooms/chatroom1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().doc("chatrooms/chatroom1/messages/message1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().doc(DocumentPath::from_str("chatrooms/chatroom1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    ///
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        let document_path = document_path
+            .try_into()
+            .map_err(|e| Error::from(ErrorKind::DocumentPathConversion(e.to_string())))?;
+        Ok(DocumentName::new(self, document_path))
     }
 }
 
