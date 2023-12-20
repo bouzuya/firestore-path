@@ -52,7 +52,7 @@ impl DocumentPath {
         }
     }
 
-    /// Creates a new `DocumentPath` from this `DocumentPath` and `collection_id`.
+    /// Creates a new `DocumentPath` from this `DocumentPath` and `collection_path`.
     ///
     /// # Examples
     ///
