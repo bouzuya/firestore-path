@@ -124,6 +124,12 @@ impl CollectionPath {
     }
 }
 
+impl std::convert::From<CollectionId> for CollectionPath {
+    fn from(collection_id: CollectionId) -> Self {
+        CollectionPath::new(None, collection_id)
+    }
+}
+
 impl std::convert::From<CollectionPath> for CollectionId {
     fn from(collection_path: CollectionPath) -> Self {
         collection_path.collection_id
@@ -242,6 +248,16 @@ mod tests {
         assert_eq!(
             Option::<DocumentPath>::from(collection_path),
             Some(DocumentPath::from_str("chatrooms/chatroom1")?)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_impl_from_collection_id_for_collection_path() -> anyhow::Result<()> {
+        let collection_id = CollectionId::from_str("chatrooms")?;
+        assert_eq!(
+            CollectionPath::from(collection_id),
+            CollectionPath::from_str("chatrooms")?
         );
         Ok(())
     }
