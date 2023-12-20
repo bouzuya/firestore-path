@@ -1,8 +1,6 @@
 use std::str::FromStr;
 
-use crate::{
-    error::ErrorKind, CollectionId, CollectionName, CollectionPath, DatabaseId, Error, ProjectId,
-};
+use crate::{error::ErrorKind, CollectionName, CollectionPath, DatabaseId, Error, ProjectId};
 
 /// A database name.
 ///
@@ -54,35 +52,56 @@ impl DatabaseName {
         }
     }
 
-    /// Creates a new `CollectionName` from this `DatabaseName` and `collection_id`.
+    /// Creates a new `CollectionName` from this `DatabaseName` and `collection_path`.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{CollectionName,DatabaseName};
+    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,DatabaseName};
     /// use std::str::FromStr;
     ///
-    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let database_name = DatabaseName::from_str(
+    ///     "projects/my-project/databases/my-database/documents"
+    /// )?;
     /// assert_eq!(
-    ///     database_name.collection("chatrooms")?,
-    ///     CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    ///     database_name.clone().collection("chatrooms")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
     /// );
+    /// assert_eq!(
+    ///     database_name.clone().collection("chatrooms/chatroom1/messages")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().collection(CollectionId::from_str("chatrooms")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    ///
     /// #     Ok(())
     /// # }
     /// ```
     ///
-    pub fn collection<E, T>(self, collection_id: T) -> Result<CollectionName, Error>
+    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,
-        T: TryInto<CollectionId, Error = E>,
+        T: TryInto<CollectionPath, Error = E>,
     {
-        let collection_id = collection_id
+        let collection_path = collection_path
             .try_into()
-            .map_err(|e| Error::from(ErrorKind::CollectionIdConversion(e.to_string())))?;
-        let collection_path = CollectionPath::new(None, collection_id);
-        let collection_name = CollectionName::new(self, collection_path);
-        Ok(collection_name)
+            .map_err(|e| Error::from(ErrorKind::CollectionPathConversion(e.to_string())))?;
+        Ok(CollectionName::new(self, collection_path))
     }
 }
 
@@ -148,31 +167,6 @@ mod tests {
         let s = "projects/my-project/databases/my-database/documents";
         let database_name = DatabaseName::from_str(s)?;
         assert_eq!(database_name.to_string(), s);
-        Ok(())
-    }
-
-    #[test]
-    fn test_collection() -> anyhow::Result<()> {
-        let database_name =
-            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
-        let collection_name = database_name.collection("chatrooms")?;
-        assert_eq!(
-            collection_name,
-            CollectionName::from_str(
-                "projects/my-project/databases/my-database/documents/chatrooms"
-            )?
-        );
-
-        let database_name =
-            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
-        let collection_id = CollectionId::from_str("chatrooms")?;
-        let collection_name = database_name.collection(collection_id)?;
-        assert_eq!(
-            collection_name,
-            CollectionName::from_str(
-                "projects/my-project/databases/my-database/documents/chatrooms"
-            )?
-        );
         Ok(())
     }
 

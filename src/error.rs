@@ -7,6 +7,8 @@ pub struct Error(#[from] ErrorKind);
 pub(crate) enum ErrorKind {
     #[error("collection id conversion {0}")]
     CollectionIdConversion(String),
+    #[error("collection path conversion {0}")]
+    CollectionPathConversion(String),
     #[error("contains invalid charactor")]
     ContainsInvalidCharacter,
     #[error("contains slash")]
