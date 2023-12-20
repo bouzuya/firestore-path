@@ -52,7 +52,7 @@ impl DocumentPath {
         }
     }
 
-    /// Creates a new `DocumentPath` from this `DocumentPath` and `collection_path`.
+    /// Creates a new `CollectionPath` from this `DocumentPath` and `collection_path`.
     ///
     /// # Examples
     ///
@@ -118,6 +118,81 @@ impl DocumentPath {
             P::D(_) => unreachable!(),
         };
         Ok(collection_path)
+    }
+
+    /// Creates a new `DocumentPath` from this `DocumentPath` and `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.clone().doc("messages/message1")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.clone().doc("messages/message1/col/doc")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.clone().doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentPath, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        let mut document_path: DocumentPath = document_path
+            .try_into()
+            .map_err(|e| Error::from(ErrorKind::DocumentPathConversion(e.to_string())))?;
+
+        enum I {
+            C(CollectionId),
+            D(DocumentId),
+        }
+        let mut path_components = vec![];
+        loop {
+            let (collection_path, document_id) = document_path.into_tuple();
+            path_components.push(I::D(document_id));
+
+            let (next_document_path, collection_id) = collection_path.into_tuple();
+            path_components.push(I::C(collection_id));
+            if let Some(next_document_path) = next_document_path {
+                document_path = next_document_path;
+            } else {
+                break;
+            }
+        }
+
+        enum P {
+            C(CollectionPath),
+            D(DocumentPath),
+        }
+        let mut result = P::D(self);
+        for path_component in path_components.into_iter().rev() {
+            result = match (result, path_component) {
+                (P::C(_), I::C(_)) | (P::D(_), I::D(_)) => unreachable!(),
+                (P::C(c), I::D(d)) => P::D(DocumentPath::new(c, d)),
+                (P::D(d), I::C(c)) => P::C(CollectionPath::new(Some(d), c)),
+            };
+        }
+        let document_path = match result {
+            P::C(_) => unreachable!(),
+            P::D(d) => d,
+        };
+        Ok(document_path)
     }
 
     /// Returns the `CollectionId` of this `DocumentPath`.

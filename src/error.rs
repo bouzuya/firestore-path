@@ -13,6 +13,8 @@ pub(crate) enum ErrorKind {
     ContainsSlash,
     #[error("document id conversion {0}")]
     DocumentIdConversion(String),
+    #[error("document path conversion {0}")]
+    DocumentPathConversion(String),
     #[error("ends with hyphen")]
     EndsWithHyphen,
     #[error("invalid name")]
