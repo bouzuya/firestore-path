@@ -66,18 +66,57 @@ impl DocumentPath {
     ///     document_path.collection("messages")?,
     ///     CollectionPath::from_str("chatrooms/chatroom1/messages")?
     /// );
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.collection("messages/message1/col")?,
+    ///     CollectionPath::from_str("chatrooms/chatroom1/messages/message1/col")?
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn collection<E, T>(self, collection_id: T) -> Result<CollectionPath, Error>
+    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionPath, Error>
     where
         E: std::fmt::Display,
-        T: TryInto<CollectionId, Error = E>,
+        T: TryInto<CollectionPath, Error = E>,
     {
-        let collection_id = collection_id
+        let mut collection_path: CollectionPath = collection_path
             .try_into()
             .map_err(|e| Error::from(ErrorKind::CollectionIdConversion(e.to_string())))?;
-        let collection_path = CollectionPath::new(Some(self), collection_id);
+
+        enum I {
+            C(CollectionId),
+            D(DocumentId),
+        }
+        let mut path_components = vec![];
+        loop {
+            let (parent, collection_id) = collection_path.into_tuple();
+            path_components.push(I::C(collection_id));
+            if let Some(document_path) = parent {
+                let (next_collection_path, document_id) = document_path.into_tuple();
+                path_components.push(I::D(document_id));
+                collection_path = next_collection_path;
+            } else {
+                break;
+            }
+        }
+
+        enum P {
+            C(CollectionPath),
+            D(DocumentPath),
+        }
+        let mut result = P::D(self);
+        for path_component in path_components.into_iter().rev() {
+            result = match (result, path_component) {
+                (P::C(_), I::C(_)) | (P::D(_), I::D(_)) => unreachable!(),
+                (P::C(c), I::D(d)) => P::D(DocumentPath::new(c, d)),
+                (P::D(d), I::C(c)) => P::C(CollectionPath::new(Some(d), c)),
+            };
+        }
+        let collection_path = match result {
+            P::C(c) => c,
+            P::D(_) => unreachable!(),
+        };
         Ok(collection_path)
     }
 
@@ -142,6 +181,10 @@ impl DocumentPath {
     /// ```
     pub fn parent(&self) -> &CollectionPath {
         self.collection_path.as_ref()
+    }
+
+    pub(crate) fn into_tuple(self) -> (CollectionPath, DocumentId) {
+        (*self.collection_path, self.document_id)
     }
 }
 
@@ -235,6 +278,25 @@ mod tests {
         assert_eq!(
             collection_path,
             CollectionPath::from_str("chatrooms/chatroom1/messages")?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_collection_with_colleciton_path() -> anyhow::Result<()> {
+        let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+        let collection_path = document_path.collection("messages/message1/col")?;
+        assert_eq!(
+            collection_path,
+            CollectionPath::from_str("chatrooms/chatroom1/messages/message1/col")?
+        );
+
+        let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+        let collection_path = CollectionPath::from_str("messages/message1/col")?;
+        let collection_path = document_path.collection(collection_path)?;
+        assert_eq!(
+            collection_path,
+            CollectionPath::from_str("chatrooms/chatroom1/messages/message1/col")?
         );
         Ok(())
     }

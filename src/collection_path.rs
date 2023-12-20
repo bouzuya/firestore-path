@@ -122,6 +122,10 @@ impl CollectionPath {
     pub fn parent(&self) -> Option<&DocumentPath> {
         self.document_path.as_ref()
     }
+
+    pub(crate) fn into_tuple(self) -> (Option<DocumentPath>, CollectionId) {
+        (self.document_path, self.collection_id)
+    }
 }
 
 impl std::convert::From<CollectionId> for CollectionPath {

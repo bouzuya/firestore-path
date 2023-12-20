@@ -63,13 +63,13 @@ impl DocumentName {
         }
     }
 
-    /// Creates a new `CollectionName` from this `DocumentName` and `collection_id`.
+    /// Creates a new `CollectionName` from this `DocumentName` and `collection_path`.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{CollectionName,DocumentName};
+    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,DocumentName};
     /// use std::str::FromStr;
     ///
     /// let document_name = DocumentName::from_str(
@@ -81,18 +81,48 @@ impl DocumentName {
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
     ///     )?
     /// );
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.collection("messages/message1/col")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+    ///     )?
+    /// );
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.collection(CollectionId::from_str("messages")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.collection(CollectionPath::from_str("messages/message1/col")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+    ///     )?
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
     ///
-    pub fn collection<E, T>(self, collection_id: T) -> Result<CollectionName, Error>
+    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,
-        T: TryInto<CollectionId, Error = E>,
+        T: TryInto<CollectionPath, Error = E>,
     {
         Ok(CollectionName::new(
             self.database_name,
-            self.document_path.collection(collection_id)?,
+            self.document_path.collection(collection_path)?,
         ))
     }
 
@@ -295,6 +325,33 @@ mod tests {
             collection_name,
             CollectionName::from_str(
                 "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+            )?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_collection_with_colleciton_path() -> anyhow::Result<()> {
+        let document_name = DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+        )?;
+        let collection_name = document_name.collection("messages/message1/col")?;
+        assert_eq!(
+            collection_name,
+            CollectionName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+            )?
+        );
+
+        let document_name = DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+        )?;
+        let collection_path = CollectionPath::from_str("messages/message1/col")?;
+        let collection_name = document_name.collection(collection_path)?;
+        assert_eq!(
+            collection_name,
+            CollectionName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
             )?
         );
         Ok(())
