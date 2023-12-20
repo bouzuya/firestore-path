@@ -5,8 +5,6 @@ pub struct Error(#[from] ErrorKind);
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, thiserror::Error)]
 pub(crate) enum ErrorKind {
-    #[error("collection id conversion {0}")]
-    CollectionIdConversion(String),
     #[error("collection path conversion {0}")]
     CollectionPathConversion(String),
     #[error("contains invalid charactor")]

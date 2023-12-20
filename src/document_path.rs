@@ -82,7 +82,7 @@ impl DocumentPath {
     {
         let mut collection_path: CollectionPath = collection_path
             .try_into()
-            .map_err(|e| Error::from(ErrorKind::CollectionIdConversion(e.to_string())))?;
+            .map_err(|e| Error::from(ErrorKind::CollectionPathConversion(e.to_string())))?;
 
         enum I {
             C(CollectionId),
