@@ -40,6 +40,7 @@ mod document_name;
 mod document_path;
 mod error;
 mod project_id;
+mod root_document_name;
 
 pub use self::collection_id::CollectionId;
 pub use self::collection_name::CollectionName;
@@ -51,3 +52,4 @@ pub use self::document_name::DocumentName;
 pub use self::document_path::DocumentPath;
 pub use self::error::Error;
 pub use self::project_id::ProjectId;
+pub use self::root_document_name::RootDocumentName;
