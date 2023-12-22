@@ -149,9 +149,7 @@ impl CollectionName {
             .try_into()
             .map_err(|e| Error::from(ErrorKind::DocumentIdConversion(e.to_string())))?;
         let document_path = DocumentPath::new(self.collection_path, document_id);
-        // FIXME: Use `RootDocumentName`
-        let document_name =
-            DocumentName::new(DatabaseName::from(self.root_document_name), document_path);
+        let document_name = DocumentName::new(self.root_document_name, document_path);
         Ok(document_name)
     }
 

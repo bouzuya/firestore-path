@@ -61,8 +61,16 @@ impl DocumentName {
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{DatabaseName,DocumentName,DocumentPath};
+    /// use firestore_path::{DatabaseName,DocumentName,DocumentPath,RootDocumentName};
     /// use std::str::FromStr;
+    ///
+    /// let root_document_name = RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// let document_name = DocumentName::new(root_document_name, document_path);
+    /// assert_eq!(
+    ///     document_name.to_string(),
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// );
     ///
     /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
     /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
@@ -75,10 +83,13 @@ impl DocumentName {
     /// # }
     /// ```
     ///
-    pub fn new(database_name: DatabaseName, document_path: DocumentPath) -> Self {
+    pub fn new<D>(root_document_name: D, document_path: DocumentPath) -> Self
+    where
+        D: Into<RootDocumentName>,
+    {
         Self {
-            root_document_name: RootDocumentName::from(database_name),
             document_path,
+            root_document_name: root_document_name.into(),
         }
     }
 
@@ -140,7 +151,7 @@ impl DocumentName {
         T: TryInto<CollectionPath, Error = E>,
     {
         Ok(CollectionName::new(
-            DatabaseName::from(self.root_document_name),
+            self.root_document_name,
             self.document_path.collection(collection_path)?,
         ))
     }
@@ -238,7 +249,7 @@ impl DocumentName {
         T: TryInto<DocumentPath, Error = E>,
     {
         Ok(DocumentName::new(
-            DatabaseName::from(self.root_document_name),
+            self.root_document_name,
             self.document_path.doc(document_path)?,
         ))
     }
@@ -288,7 +299,7 @@ impl DocumentName {
     ///
     pub fn parent(self) -> CollectionName {
         CollectionName::new(
-            DatabaseName::from(self.root_document_name),
+            self.root_document_name,
             CollectionPath::from(self.document_path),
         )
     }
@@ -353,7 +364,7 @@ impl std::str::FromStr for DocumentName {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{CollectionPath, DatabaseId, DocumentId, ProjectId};
+    use crate::{CollectionPath, DocumentId};
 
     use super::*;
 
@@ -518,19 +529,6 @@ mod tests {
     }
 
     #[test]
-    fn test_new() -> anyhow::Result<()> {
-        // FIXME: Use `RootDocumentName`
-        let database_name = build_database_name()?;
-        let document_path = build_document_path()?;
-        let document_name = DocumentName::new(database_name.clone(), document_path.clone());
-        assert_eq!(
-            document_name.to_string(),
-            format!("{}/documents/{}", database_name, document_path)
-        );
-        Ok(())
-    }
-
-    #[test]
     fn test_parent() -> anyhow::Result<()> {
         let document_name = DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
@@ -542,19 +540,5 @@ mod tests {
             )?
         );
         Ok(())
-    }
-
-    fn build_document_path() -> anyhow::Result<DocumentPath> {
-        let collection_path = CollectionPath::from_str("chatrooms")?;
-        let document_id = DocumentId::from_str("chatroom1")?;
-        let document_path = DocumentPath::new(collection_path, document_id);
-        Ok(document_path)
-    }
-
-    fn build_database_name() -> anyhow::Result<DatabaseName> {
-        let project_id = ProjectId::from_str("my-project")?;
-        let database_id = DatabaseId::from_str("my-database")?;
-        let database_name = DatabaseName::new(project_id, database_id);
-        Ok(database_name)
     }
 }
