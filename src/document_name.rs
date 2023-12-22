@@ -303,6 +303,31 @@ impl DocumentName {
             CollectionPath::from(self.document_path),
         )
     }
+
+    /// Returns the `RootDocumentName` of this `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentName,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// let root_document_name = document_name.root_document_name();
+    /// assert_eq!(
+    ///     root_document_name,
+    ///     &RootDocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    pub fn root_document_name(&self) -> &RootDocumentName {
+        &self.root_document_name
+    }
 }
 
 impl std::convert::From<DocumentName> for DatabaseName {

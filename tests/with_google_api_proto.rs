@@ -44,7 +44,7 @@ fn test_create_document_request() -> anyhow::Result<()> {
                 .parent()
                 .parent()
                 .map(|parent_document_name| parent_document_name.to_string())
-                .unwrap_or_else(|| document_name.database_name().clone().root_document_name().to_string()),
+                .unwrap_or_else(|| document_name.root_document_name().to_string()),
             collection_id: document_name.collection_id().to_string(),
             document_id: document_name.document_id().to_string(),
             document: Some(Document {
