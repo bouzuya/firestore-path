@@ -41,16 +41,16 @@ impl RootDocumentName {
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,RootDocumentName};
+    /// use firestore_path::{DatabaseName,RootDocumentName};
     /// use std::str::FromStr;
     ///
-    /// let root_document_name = RootDocumentName::from_str(
-    ///     "projects/my-project/databases/my-database/documents"
+    /// let database_name = DatabaseName::from_str(
+    ///     "projects/my-project/databases/my-database"
     /// )?;
     /// assert_eq!(
-    ///     root_document_name.clone().collection("chatrooms")?,
-    ///     CollectionName::from_str(
-    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     RootDocumentName::new(database_name),
+    ///     RootDocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents"
     ///     )?
     /// );
     /// #     Ok(())
