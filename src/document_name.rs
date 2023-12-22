@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use crate::{
     error::ErrorKind, CollectionId, CollectionName, CollectionPath, DatabaseName, DocumentId,
-    DocumentPath, Error,
+    DocumentPath, Error, RootDocumentName,
 };
 
 /// A document name.
@@ -50,8 +50,8 @@ use crate::{
 ///
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DocumentName {
-    database_name: DatabaseName,
     document_path: DocumentPath,
+    root_document_name: RootDocumentName,
 }
 
 impl DocumentName {
@@ -77,7 +77,7 @@ impl DocumentName {
     ///
     pub fn new(database_name: DatabaseName, document_path: DocumentPath) -> Self {
         Self {
-            database_name,
+            root_document_name: RootDocumentName::from(database_name),
             document_path,
         }
     }
@@ -140,7 +140,7 @@ impl DocumentName {
         T: TryInto<CollectionPath, Error = E>,
     {
         Ok(CollectionName::new(
-            self.database_name,
+            DatabaseName::from(self.root_document_name),
             self.document_path.collection(collection_path)?,
         ))
     }
@@ -189,7 +189,7 @@ impl DocumentName {
     /// ```
     ///
     pub fn database_name(&self) -> &DatabaseName {
-        &self.database_name
+        self.root_document_name.as_database_name()
     }
 
     /// Creates a new `DocumentName` from this `DocumentName` and `document_path`.
@@ -238,7 +238,7 @@ impl DocumentName {
         T: TryInto<DocumentPath, Error = E>,
     {
         Ok(DocumentName::new(
-            self.database_name,
+            DatabaseName::from(self.root_document_name),
             self.document_path.doc(document_path)?,
         ))
     }
@@ -287,13 +287,16 @@ impl DocumentName {
     /// ```
     ///
     pub fn parent(self) -> CollectionName {
-        CollectionName::new(self.database_name, CollectionPath::from(self.document_path))
+        CollectionName::new(
+            DatabaseName::from(self.root_document_name),
+            CollectionPath::from(self.document_path),
+        )
     }
 }
 
 impl std::convert::From<DocumentName> for DatabaseName {
     fn from(document_name: DocumentName) -> Self {
-        document_name.database_name
+        Self::from(document_name.root_document_name)
     }
 }
 
@@ -318,7 +321,7 @@ impl std::convert::TryFrom<&str> for DocumentName {
         }
 
         Ok(Self {
-            database_name: DatabaseName::from_str(&parts[0..5].join("/"))?,
+            root_document_name: RootDocumentName::from_str(&parts[0..5].join("/"))?,
             document_path: DocumentPath::from_str(&parts[5..].join("/"))?,
         })
     }
@@ -334,7 +337,7 @@ impl std::convert::TryFrom<String> for DocumentName {
 
 impl std::fmt::Display for DocumentName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}/{}", self.database_name, self.document_path)
+        write!(f, "{}/{}", self.root_document_name, self.document_path)
     }
 }
 
