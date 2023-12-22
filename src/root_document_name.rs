@@ -166,6 +166,10 @@ impl RootDocumentName {
             .map_err(|e| Error::from(ErrorKind::DocumentPathConversion(e.to_string())))?;
         Ok(DocumentName::new(DatabaseName::from(self), document_path))
     }
+
+    pub(crate) fn as_database_name(&self) -> &DatabaseName {
+        &self.database_name
+    }
 }
 
 impl std::convert::From<DatabaseName> for RootDocumentName {

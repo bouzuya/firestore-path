@@ -2,14 +2,14 @@ use std::str::FromStr;
 
 use crate::{
     error::ErrorKind, CollectionId, CollectionPath, DatabaseName, DocumentId, DocumentName,
-    DocumentPath, Error,
+    DocumentPath, Error, RootDocumentName,
 };
 
 /// A collection name.
 ///
 /// # Format
 ///
-/// `{database_name}/{collection_path}`
+/// `{root_document_name}/{collection_path}`
 ///
 /// # Examples
 ///
@@ -31,7 +31,7 @@ use crate::{
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct CollectionName {
     collection_path: CollectionPath,
-    database_name: DatabaseName,
+    root_document_name: RootDocumentName,
 }
 
 impl CollectionName {
@@ -57,7 +57,7 @@ impl CollectionName {
     pub fn new(database_name: DatabaseName, collection_path: CollectionPath) -> Self {
         Self {
             collection_path,
-            database_name,
+            root_document_name: RootDocumentName::from(database_name),
         }
     }
 
@@ -105,7 +105,7 @@ impl CollectionName {
     /// ```
     ///
     pub fn database_name(&self) -> &DatabaseName {
-        &self.database_name
+        self.root_document_name.as_database_name()
     }
 
     /// Creates a new `DocumentName` from this `CollectionName` and `document_id`.
@@ -138,7 +138,8 @@ impl CollectionName {
             .try_into()
             .map_err(|e| Error::from(ErrorKind::DocumentIdConversion(e.to_string())))?;
         let document_path = DocumentPath::new(self.collection_path, document_id);
-        let document_name = DocumentName::new(self.database_name, document_path);
+        let document_name =
+            DocumentName::new(DatabaseName::from(self.root_document_name), document_path);
         Ok(document_name)
     }
 
@@ -169,8 +170,9 @@ impl CollectionName {
     /// # }
     /// ```
     pub fn parent(self) -> Option<DocumentName> {
-        Option::<DocumentPath>::from(self.collection_path)
-            .map(|document_path| DocumentName::new(self.database_name, document_path))
+        Option::<DocumentPath>::from(self.collection_path).map(|document_path| {
+            DocumentName::new(DatabaseName::from(self.root_document_name), document_path)
+        })
     }
 }
 
@@ -182,7 +184,7 @@ impl std::convert::From<CollectionName> for CollectionId {
 
 impl std::convert::From<CollectionName> for DatabaseName {
     fn from(collection_name: CollectionName) -> Self {
-        collection_name.database_name
+        Self::from(collection_name.root_document_name)
     }
 }
 
@@ -202,7 +204,7 @@ impl std::convert::TryFrom<&str> for CollectionName {
 
         Ok(Self {
             collection_path: CollectionPath::from_str(&parts[5..].join("/"))?,
-            database_name: DatabaseName::from_str(&parts[0..5].join("/"))?,
+            root_document_name: RootDocumentName::from_str(&parts[0..5].join("/"))?,
         })
     }
 }
@@ -217,7 +219,7 @@ impl std::convert::TryFrom<String> for CollectionName {
 
 impl std::fmt::Display for CollectionName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}/{}", self.database_name, self.collection_path)
+        write!(f, "{}/{}", self.root_document_name, self.collection_path)
     }
 }
 
