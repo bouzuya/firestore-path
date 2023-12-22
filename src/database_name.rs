@@ -2,24 +2,28 @@ use std::str::FromStr;
 
 use crate::{
     error::ErrorKind, CollectionName, CollectionPath, DatabaseId, DocumentName, DocumentPath,
-    Error, ProjectId,
+    Error, ProjectId, RootDocumentName,
 };
 
 /// A database name.
 ///
 /// # Format
 ///
-/// `projects/{project_id}/databases/{database_id}/documents`
+/// `projects/{project_id}/databases/{database_id}`
 ///
 /// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// use firestore_path::DatabaseName;
+/// use firestore_path::{DatabaseName,RootDocumentName};
 /// use std::str::FromStr;
 ///
-/// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
-/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database/documents");
+/// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
+/// assert_eq!(
+///     database_name.root_document_name(),
+///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+/// );
 /// #     Ok(())
 /// # }
 /// ```
@@ -43,7 +47,7 @@ impl DatabaseName {
     /// let project_id = ProjectId::from_str("my-project")?;
     /// let database_id = DatabaseId::from_str("my-database")?;
     /// let database_name = DatabaseName::new(project_id, database_id);
-    /// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database/documents");
+    /// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
     /// #     Ok(())
     /// # }
     /// ```
@@ -65,7 +69,7 @@ impl DatabaseName {
     /// use std::str::FromStr;
     ///
     /// let database_name = DatabaseName::from_str(
-    ///     "projects/my-project/databases/my-database/documents"
+    ///     "projects/my-project/databases/my-database"
     /// )?;
     /// assert_eq!(
     ///     database_name.clone().collection("chatrooms")?,
@@ -117,7 +121,7 @@ impl DatabaseName {
     /// use std::str::FromStr;
     ///
     /// let database_name = DatabaseName::from_str(
-    ///     "projects/my-project/databases/my-database/documents"
+    ///     "projects/my-project/databases/my-database"
     /// )?;
     /// assert_eq!(
     ///     database_name.clone().doc("chatrooms/chatroom1")?,
@@ -158,6 +162,27 @@ impl DatabaseName {
             .map_err(|e| Error::from(ErrorKind::DocumentPathConversion(e.to_string())))?;
         Ok(DocumentName::new(self, document_path))
     }
+
+    /// Creates a new `RootDocumentName` from this `DatabaseName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseName,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    /// assert_eq!(
+    ///     database_name.root_document_name(),
+    ///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn root_document_name(self) -> RootDocumentName {
+        RootDocumentName::new(self)
+    }
 }
 
 impl std::convert::TryFrom<&str> for DatabaseName {
@@ -169,10 +194,10 @@ impl std::convert::TryFrom<&str> for DatabaseName {
         }
 
         let parts = s.split('/').collect::<Vec<&str>>();
-        if parts.len() != 5 {
+        if parts.len() != 4 {
             return Err(Error::from(ErrorKind::InvalidNumberOfPathComponents));
         }
-        if parts[0] != "projects" || parts[2] != "databases" || parts[4] != "documents" {
+        if parts[0] != "projects" || parts[2] != "databases" {
             return Err(Error::from(ErrorKind::InvalidName));
         }
 
@@ -197,7 +222,7 @@ impl std::fmt::Display for DatabaseName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "projects/{}/databases/{}/documents",
+            "projects/{}/databases/{}",
             self.project_id, self.database_id
         )
     }
@@ -219,7 +244,7 @@ mod tests {
 
     #[test]
     fn test() -> anyhow::Result<()> {
-        let s = "projects/my-project/databases/my-database/documents";
+        let s = "projects/my-project/databases/my-database";
         let database_name = DatabaseName::from_str(s)?;
         assert_eq!(database_name.to_string(), s);
         Ok(())
@@ -229,13 +254,12 @@ mod tests {
     fn test_impl_from_str_and_impl_try_from_string() -> anyhow::Result<()> {
         for (s, expected) in [
             ("", false),
-            ("projects/my-project/databases/my-database/documents", true),
+            ("projects/my-project/databases/my-database", true),
             ("x".repeat(1024 * 6 + 1).as_ref(), false),
-            ("p/my-project/databases/my-database/documents", false),
-            ("projects/my-project/d/my-database/documents", false),
-            ("projects/my-project/databases/my-database/d", false),
+            ("p/my-project/databases/my-database", false),
+            ("projects/my-project/d/my-database", false),
             ("projects/P/databases/my-database/d", false),
-            ("projects/my-project/databases/D/d", false),
+            ("projects/my-project/databases/D", false),
         ] {
             assert_eq!(DatabaseName::from_str(s).is_ok(), expected);
             assert_eq!(DatabaseName::try_from(s).is_ok(), expected);
@@ -259,10 +283,7 @@ mod tests {
         let database_name = DatabaseName::new(project_id.clone(), database_id.clone());
         assert_eq!(
             database_name.to_string(),
-            format!(
-                "projects/{}/databases/{}/documents",
-                project_id, database_id
-            )
+            format!("projects/{}/databases/{}", project_id, database_id)
         );
         Ok(())
     }

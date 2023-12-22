@@ -44,7 +44,7 @@ impl CollectionName {
     /// use firestore_path::{CollectionName,CollectionPath,DatabaseName};
     /// use std::str::FromStr;
     ///
-    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
     /// let collection_path = CollectionPath::from_str("chatrooms")?;
     /// let collection_name = CollectionName::new(database_name, collection_path);
     /// assert_eq!(
@@ -98,7 +98,7 @@ impl CollectionName {
     /// )?;
     /// assert_eq!(
     ///     collection_name.database_name(),
-    ///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+    ///     &DatabaseName::from_str("projects/my-project/databases/my-database")?
     /// );
     /// #     Ok(())
     /// # }
@@ -318,7 +318,7 @@ mod tests {
         let collection_name = CollectionName::from_str(s)?;
         assert_eq!(
             DatabaseName::from(collection_name),
-            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+            DatabaseName::from_str("projects/my-project/databases/my-database")?
         );
         Ok(())
     }
@@ -371,12 +371,13 @@ mod tests {
 
     #[test]
     fn test_new() -> anyhow::Result<()> {
+        // FIXME: Use `RootDocumentName`
         let database_name = build_database_name()?;
         let collection_path = build_collection_path()?;
         let collection_name = CollectionName::new(database_name.clone(), collection_path.clone());
         assert_eq!(
             collection_name.to_string(),
-            format!("{}/{}", database_name, collection_path)
+            format!("{}/documents/{}", database_name, collection_path)
         );
         Ok(())
     }

@@ -217,12 +217,7 @@ impl std::convert::TryFrom<String> for RootDocumentName {
 
 impl std::fmt::Display for RootDocumentName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            // FIXME: Fix `DatabaseName::to_string` format.
-            "{}",
-            self.database_name
-        )
+        write!(f, "{}/documents", self.database_name)
     }
 }
 

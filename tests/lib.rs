@@ -13,7 +13,7 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
     )?;
     assert_eq!(
         document_name.database_name(),
-        &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?,
+        &DatabaseName::from_str("projects/my-project/databases/my-database")?,
     );
     assert_eq!(
         document_name.document_id(),
@@ -22,7 +22,7 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
     let collection_name = document_name.parent();
     assert_eq!(
         collection_name.database_name(),
-        &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?,
+        &DatabaseName::from_str("projects/my-project/databases/my-database")?,
     );
     assert_eq!(
         collection_name.collection_id(),
@@ -167,7 +167,7 @@ fn test_conversion_between_string() -> anyhow::Result<()> {
     let database_id = DatabaseId::from_str(s)?;
     assert_eq!(database_id.to_string(), s);
 
-    let s = "projects/my-project/databases/my-database/documents";
+    let s = "projects/my-project/databases/my-database";
     let database_name = DatabaseName::from_str(s)?;
     assert_eq!(database_name.to_string(), s);
 

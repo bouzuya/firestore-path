@@ -36,7 +36,7 @@ use crate::{
 /// assert_eq!(document_name.collection_id(), &CollectionId::from_str("chatrooms")?);
 /// assert_eq!(
 ///     document_name.database_name(),
-///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+///     &DatabaseName::from_str("projects/my-project/databases/my-database")?
 /// );
 /// assert_eq!(document_name.document_id(), &DocumentId::from_str("chatroom1")?);
 /// assert_eq!(
@@ -64,7 +64,7 @@ impl DocumentName {
     /// use firestore_path::{DatabaseName,DocumentName,DocumentPath};
     /// use std::str::FromStr;
     ///
-    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
     /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
     /// let document_name = DocumentName::new(database_name, document_path);
     /// assert_eq!(
@@ -182,7 +182,7 @@ impl DocumentName {
     /// )?;
     /// assert_eq!(
     ///     document_name.database_name(),
-    ///     &DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+    ///     &DatabaseName::from_str("projects/my-project/databases/my-database")?
     /// );
     /// #     Ok(())
     /// # }
@@ -449,7 +449,7 @@ mod tests {
         )?;
         assert_eq!(
             DatabaseName::from(document_name),
-            DatabaseName::from_str("projects/my-project/databases/my-database/documents")?
+            DatabaseName::from_str("projects/my-project/databases/my-database")?
         );
         Ok(())
     }
@@ -519,12 +519,13 @@ mod tests {
 
     #[test]
     fn test_new() -> anyhow::Result<()> {
+        // FIXME: Use `RootDocumentName`
         let database_name = build_database_name()?;
         let document_path = build_document_path()?;
         let document_name = DocumentName::new(database_name.clone(), document_path.clone());
         assert_eq!(
             document_name.to_string(),
-            format!("{}/{}", database_name, document_path)
+            format!("{}/documents/{}", database_name, document_path)
         );
         Ok(())
     }
