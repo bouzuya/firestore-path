@@ -109,10 +109,7 @@ impl RootDocumentName {
         let collection_path = collection_path
             .try_into()
             .map_err(|e| Error::from(ErrorKind::CollectionPathConversion(e.to_string())))?;
-        Ok(CollectionName::new(
-            DatabaseName::from(self),
-            collection_path,
-        ))
+        Ok(CollectionName::new(self, collection_path))
     }
 
     /// Creates a new `DocumentName` from this `RootDocumentName` and `document_path`.
@@ -164,7 +161,7 @@ impl RootDocumentName {
         let document_path = document_path
             .try_into()
             .map_err(|e| Error::from(ErrorKind::DocumentPathConversion(e.to_string())))?;
-        Ok(DocumentName::new(DatabaseName::from(self), document_path))
+        Ok(DocumentName::new(self, document_path))
     }
 
     pub(crate) fn as_database_name(&self) -> &DatabaseName {
