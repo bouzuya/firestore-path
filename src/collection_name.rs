@@ -41,8 +41,16 @@ impl CollectionName {
     ///
     /// ```rust
     /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{CollectionName,CollectionPath,DatabaseName};
+    /// use firestore_path::{CollectionName,CollectionPath,DatabaseName,RootDocumentName};
     /// use std::str::FromStr;
+    ///
+    /// let root_document_name = RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
+    /// let collection_path = CollectionPath::from_str("chatrooms")?;
+    /// let collection_name = CollectionName::new(root_document_name, collection_path);
+    /// assert_eq!(
+    ///     collection_name.to_string(),
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// );
     ///
     /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
     /// let collection_path = CollectionPath::from_str("chatrooms")?;
@@ -54,10 +62,13 @@ impl CollectionName {
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn new(database_name: DatabaseName, collection_path: CollectionPath) -> Self {
+    pub fn new<D>(root_document_name: D, collection_path: CollectionPath) -> Self
+    where
+        D: Into<RootDocumentName>,
+    {
         Self {
             collection_path,
-            root_document_name: RootDocumentName::from(database_name),
+            root_document_name: root_document_name.into(),
         }
     }
 
@@ -138,6 +149,7 @@ impl CollectionName {
             .try_into()
             .map_err(|e| Error::from(ErrorKind::DocumentIdConversion(e.to_string())))?;
         let document_path = DocumentPath::new(self.collection_path, document_id);
+        // FIXME: Use `RootDocumentName`
         let document_name =
             DocumentName::new(DatabaseName::from(self.root_document_name), document_path);
         Ok(document_name)
@@ -235,7 +247,7 @@ impl std::str::FromStr for CollectionName {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{CollectionId, DatabaseId, ProjectId};
+    use crate::CollectionId;
 
     use super::*;
 
@@ -370,19 +382,6 @@ mod tests {
     }
 
     #[test]
-    fn test_new() -> anyhow::Result<()> {
-        // FIXME: Use `RootDocumentName`
-        let database_name = build_database_name()?;
-        let collection_path = build_collection_path()?;
-        let collection_name = CollectionName::new(database_name.clone(), collection_path.clone());
-        assert_eq!(
-            collection_name.to_string(),
-            format!("{}/documents/{}", database_name, collection_path)
-        );
-        Ok(())
-    }
-
-    #[test]
     fn test_parent() -> anyhow::Result<()> {
         let s = "projects/my-project/databases/my-database/documents/chatrooms";
         let collection_name = CollectionName::from_str(s)?;
@@ -397,18 +396,5 @@ mod tests {
             )?)
         );
         Ok(())
-    }
-
-    fn build_collection_path() -> anyhow::Result<CollectionPath> {
-        let collection_id = CollectionId::from_str("chatrooms")?;
-        let collection_path = CollectionPath::new(None, collection_id);
-        Ok(collection_path)
-    }
-
-    fn build_database_name() -> anyhow::Result<DatabaseName> {
-        let project_id = ProjectId::from_str("my-project")?;
-        let database_id = DatabaseId::from_str("my-database")?;
-        let database_name = DatabaseName::new(project_id, database_id);
-        Ok(database_name)
     }
 }
