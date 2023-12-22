@@ -179,3 +179,15 @@ fn test_collection_name_new_with_root_document_name() -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn test_collection_name_root_document_name() -> anyhow::Result<()> {
+    let collection_name =
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?;
+    let root_document_name = collection_name.root_document_name();
+    assert_eq!(
+        root_document_name,
+        &RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    Ok(())
+}

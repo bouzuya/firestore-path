@@ -184,6 +184,32 @@ impl CollectionName {
             DocumentName::new(DatabaseName::from(self.root_document_name), document_path)
         })
     }
+
+    /// Returns the `RootDocumentName` of this `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// let root_document_name = collection_name.root_document_name();
+    /// assert_eq!(
+    ///     root_document_name,
+    ///     &RootDocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn root_document_name(&self) -> &RootDocumentName {
+        &self.root_document_name
+    }
 }
 
 impl std::convert::From<CollectionName> for CollectionId {
