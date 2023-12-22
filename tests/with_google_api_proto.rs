@@ -1,10 +1,24 @@
 use std::{collections::BTreeMap, str::FromStr as _};
 
-use firestore_path::DocumentName;
+use firestore_path::{DatabaseName, DocumentName};
 use google_api_proto::google::firestore::v1::{
-    precondition::ConditionType, CreateDocumentRequest, DeleteDocumentRequest, Document,
-    Precondition,
+    precondition::ConditionType, BeginTransactionRequest, CreateDocumentRequest,
+    DeleteDocumentRequest, Document, Precondition,
 };
+
+#[test]
+fn test_begin_transaction_request() -> anyhow::Result<()> {
+    let s = "projects/my-project/databases/(default)";
+    let database_name = DatabaseName::from_str(s)?;
+
+    let request = BeginTransactionRequest {
+        database: database_name.to_string(),
+        options: None,
+    };
+
+    assert_eq!(request.database, s);
+    Ok(())
+}
 
 #[test]
 fn test_create_document_request() -> anyhow::Result<()> {
