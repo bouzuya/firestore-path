@@ -10,7 +10,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/bouzuya/firestore-path"
 
 [dependencies]
-thiserror = "1.0.51"
+thiserror = "1"
 
 [dev-dependencies]
 anyhow = "1.0.76"
