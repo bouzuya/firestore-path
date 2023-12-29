@@ -163,6 +163,27 @@ impl DatabaseName {
         Ok(DocumentName::new(self, document_path))
     }
 
+    /// Returns the `ProjectId` of this `DatabaseName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseName,ProjectId};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    /// assert_eq!(
+    ///     database_name.project_id(),
+    ///     &ProjectId::from_str("my-project")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn project_id(&self) -> &ProjectId {
+        &self.project_id
+    }
+
     /// Creates a new `RootDocumentName` from this `DatabaseName`.
     ///
     /// # Examples
