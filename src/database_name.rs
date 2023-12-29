@@ -111,6 +111,27 @@ impl DatabaseName {
         Ok(CollectionName::new(self, collection_path))
     }
 
+    /// Returns the `DatabaseId` of this `DatabaseName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseId,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    /// assert_eq!(
+    ///     database_name.database_id(),
+    ///     &DatabaseId::from_str("my-database")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn database_id(&self) -> &DatabaseId {
+        &self.database_id
+    }
+
     /// Creates a new `DocumentName` from this `DatabaseName` and `document_path`.
     ///
     /// # Examples
