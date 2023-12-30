@@ -16,7 +16,7 @@ use crate::{
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use firestore_path::DocumentName;
-/// # use firestore_path::{CollectionId,CollectionName,DatabaseName,DocumentId};
+/// # use firestore_path::{CollectionId,CollectionName,DatabaseName,DocumentId,DocumentPath};
 /// # use std::str::FromStr;
 ///
 /// let document_name = DocumentName::from_str(
@@ -39,9 +39,15 @@ use crate::{
 ///     &DatabaseName::from_str("projects/my-project/databases/my-database")?
 /// );
 /// assert_eq!(document_name.document_id(), &DocumentId::from_str("chatroom1")?);
+/// assert_eq!(document_name.document_path(), &DocumentPath::from_str("chatrooms/chatroom1")?);
 /// assert_eq!(
 ///     document_name.clone().parent(),
 ///     CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+/// );
+///
+/// assert_eq!(
+///     DocumentPath::from(document_name.clone()),
+///     DocumentPath::from_str("chatrooms/chatroom1")?
 /// );
 ///
 /// #     Ok(())
@@ -275,6 +281,30 @@ impl DocumentName {
         self.document_path.document_id()
     }
 
+    /// Returns the `DocumentPath` of this `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentName,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.document_path(),
+    ///     &DocumentPath::from_str("chatrooms/chatroom1")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn document_path(&self) -> &DocumentPath {
+        &self.document_path
+    }
+
     /// Returns the parent `CollectionName` of this `DocumentName`.
     ///
     /// # Examples
@@ -339,6 +369,12 @@ impl std::convert::From<DocumentName> for DatabaseName {
 impl std::convert::From<DocumentName> for DocumentId {
     fn from(document_name: DocumentName) -> Self {
         Self::from(document_name.document_path)
+    }
+}
+
+impl std::convert::From<DocumentName> for DocumentPath {
+    fn from(document_name: DocumentName) -> Self {
+        document_name.document_path
     }
 }
 
