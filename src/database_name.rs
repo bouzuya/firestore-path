@@ -15,15 +15,26 @@ use crate::{
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// use firestore_path::{DatabaseName,RootDocumentName};
+/// use firestore_path::{DatabaseId,DatabaseName,RootDocumentName};
 /// use std::str::FromStr;
 ///
 /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
 /// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
 /// assert_eq!(
-///     database_name.root_document_name(),
+///     database_name.clone().root_document_name(),
 ///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
 /// );
+///
+/// assert_eq!(
+///     database_name.database_id(),
+///     &DatabaseId::from_str("my-database")?
+/// );
+///
+/// assert_eq!(
+///     DatabaseId::from(database_name.clone()),
+///     DatabaseId::from_str("my-database")?
+/// );
+///
 /// #     Ok(())
 /// # }
 /// ```
@@ -224,6 +235,12 @@ impl DatabaseName {
     /// ```
     pub fn root_document_name(self) -> RootDocumentName {
         RootDocumentName::new(self)
+    }
+}
+
+impl std::convert::From<DatabaseName> for DatabaseId {
+    fn from(database_name: DatabaseName) -> Self {
+        database_name.database_id
     }
 }
 
