@@ -15,7 +15,7 @@ use crate::{
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// use firestore_path::CollectionName;
+/// use firestore_path::{CollectionName,CollectionPath};
 /// use std::str::FromStr;
 ///
 /// let collection_name = CollectionName::from_str(
@@ -25,6 +25,17 @@ use crate::{
 ///     collection_name.to_string(),
 ///     "projects/my-project/databases/my-database/documents/chatrooms"
 /// );
+///
+/// assert_eq!(
+///     collection_name.collection_path(),
+///     &CollectionPath::from_str("chatrooms")?
+/// );
+///
+/// assert_eq!(
+///     CollectionPath::from(collection_name),
+///     CollectionPath::from_str("chatrooms")?
+/// );
+///
 /// #     Ok(())
 /// # }
 /// ```
@@ -93,6 +104,29 @@ impl CollectionName {
     /// ```
     pub fn collection_id(&self) -> &CollectionId {
         self.collection_path.collection_id()
+    }
+
+    /// Returns the `CollectionPath` of this `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,CollectionPath};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.collection_path(),
+    ///     &CollectionPath::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn collection_path(&self) -> &CollectionPath {
+        &self.collection_path
     }
 
     /// Returns the `DatabaseName` of this `CollectionName`.
@@ -215,6 +249,12 @@ impl CollectionName {
 impl std::convert::From<CollectionName> for CollectionId {
     fn from(collection_name: CollectionName) -> Self {
         Self::from(collection_name.collection_path)
+    }
+}
+
+impl std::convert::From<CollectionName> for CollectionPath {
+    fn from(collection_name: CollectionName) -> Self {
+        collection_name.collection_path
     }
 }
 
