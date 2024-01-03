@@ -13,7 +13,7 @@ repository = "https://github.com/bouzuya/firestore-path"
 thiserror = "1"
 
 [dev-dependencies]
-anyhow = "1.0.76"
+anyhow = "1.0.79"
 google-api-proto = { version = "1.452.0", features = ["google-firestore-v1"] }
 
 # <https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section>
