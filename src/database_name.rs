@@ -164,19 +164,19 @@ impl DatabaseName {
     ///     "projects/my-project/databases/my-database"
     /// )?;
     /// assert_eq!(
-    ///     database_name.clone().doc("chatrooms/chatroom1")?,
+    ///     database_name.doc("chatrooms/chatroom1")?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     database_name.clone().doc("chatrooms/chatroom1/messages/message1")?,
+    ///     database_name.doc("chatrooms/chatroom1/messages/message1")?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     database_name.clone().doc(DocumentPath::from_str("chatrooms/chatroom1")?)?,
+    ///     database_name.doc(DocumentPath::from_str("chatrooms/chatroom1")?)?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
     ///     )?
@@ -192,7 +192,56 @@ impl DatabaseName {
     /// # }
     /// ```
     ///
-    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
+    pub fn doc<E, T>(&self, document_path: T) -> Result<DocumentName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        self.clone().into_doc(document_path)
+    }
+
+    /// Creates a new `DocumentName` by consuming the `DatabaseName` with the provided `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentName,DocumentPath,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str(
+    ///     "projects/my-project/databases/my-database"
+    /// )?;
+    /// assert_eq!(
+    ///     database_name.clone().into_doc("chatrooms/chatroom1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().into_doc("chatrooms/chatroom1/messages/message1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().into_doc(DocumentPath::from_str("chatrooms/chatroom1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.into_doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    ///
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<DocumentPath, Error = E>,
