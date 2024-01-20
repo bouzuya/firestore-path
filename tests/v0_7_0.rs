@@ -467,6 +467,34 @@ fn test_document_path_into_doc() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_root_document_name_collection() -> anyhow::Result<()> {
+    // BREAKING CHANGE: RootDocumentName::collection doesn't consume self.
+    let root_document_name =
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
+    assert_eq!(
+        root_document_name.collection("chatrooms")?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        root_document_name.collection("chatrooms/chatroom1/messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        root_document_name.collection(CollectionId::from_str("chatrooms")?)?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        root_document_name.collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_root_document_name_doc() -> anyhow::Result<()> {
     // BREAKING CHANGE: RootDocumentName::doc doesn't consume self.
     let root_document_name =
@@ -493,6 +521,39 @@ fn test_root_document_name_doc() -> anyhow::Result<()> {
         root_document_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_root_document_name_into_collection() -> anyhow::Result<()> {
+    // Added: RootDocumentName::into_collection
+    let root_document_name =
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
+    assert_eq!(
+        root_document_name.clone().into_collection("chatrooms")?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        root_document_name
+            .clone()
+            .into_collection("chatrooms/chatroom1/messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        root_document_name
+            .clone()
+            .into_collection(CollectionId::from_str("chatrooms")?)?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        root_document_name
+            .into_collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
         )?
     );
     Ok(())

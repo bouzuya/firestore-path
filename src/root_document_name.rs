@@ -73,19 +73,19 @@ impl RootDocumentName {
     ///     "projects/my-project/databases/my-database/documents"
     /// )?;
     /// assert_eq!(
-    ///     root_document_name.clone().collection("chatrooms")?,
+    ///     root_document_name.collection("chatrooms")?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     root_document_name.clone().collection("chatrooms/chatroom1/messages")?,
+    ///     root_document_name.collection("chatrooms/chatroom1/messages")?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     root_document_name.clone().collection(CollectionId::from_str("chatrooms")?)?,
+    ///     root_document_name.collection(CollectionId::from_str("chatrooms")?)?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms"
     ///     )?
@@ -101,7 +101,56 @@ impl RootDocumentName {
     /// # }
     /// ```
     ///
-    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
+    pub fn collection<E, T>(&self, collection_path: T) -> Result<CollectionName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<CollectionPath, Error = E>,
+    {
+        self.clone().into_collection(collection_path)
+    }
+
+    /// Creates a new `CollectionName` by consuming `RootDocumentName` with the provided `collection_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let root_document_name = RootDocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents"
+    /// )?;
+    /// assert_eq!(
+    ///     root_document_name.clone().into_collection("chatrooms")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     root_document_name.clone().into_collection("chatrooms/chatroom1/messages")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     root_document_name.clone().into_collection(CollectionId::from_str("chatrooms")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     root_document_name.into_collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    ///
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<CollectionPath, Error = E>,
