@@ -131,15 +131,15 @@ impl DocumentPath {
     ///
     /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
     /// assert_eq!(
-    ///     document_path.clone().doc("messages/message1")?,
+    ///     document_path.doc("messages/message1")?,
     ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
     /// );
     /// assert_eq!(
-    ///     document_path.clone().doc("messages/message1/col/doc")?,
+    ///     document_path.doc("messages/message1/col/doc")?,
     ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
     /// );
     /// assert_eq!(
-    ///     document_path.clone().doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     document_path.doc(DocumentPath::from_str("messages/message1")?)?,
     ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
     /// );
     /// assert_eq!(
@@ -149,7 +149,86 @@ impl DocumentPath {
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentPath, Error>
+    pub fn doc<E, T>(&self, document_path: T) -> Result<DocumentPath, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        self.clone().into_doc(document_path)
+    }
+
+    /// Returns the `CollectionId` of this `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.collection_id(),
+    ///     &CollectionId::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn collection_id(&self) -> &CollectionId {
+        self.collection_path.collection_id()
+    }
+
+    /// Returns the `DocumentId` of this `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DocumentId,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.document_id(),
+    ///     &DocumentId::from_str("chatroom1")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn document_id(&self) -> &DocumentId {
+        &self.document_id
+    }
+
+    /// Creates a new `DocumentPath` by consuming the `DocumentPath` and the provided `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.clone().into_doc("messages/message1")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.clone().into_doc("messages/message1/col/doc")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.clone().into_doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.into_doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_doc<E, T>(self, document_path: T) -> Result<DocumentPath, Error>
     where
         E: std::fmt::Display,
         T: TryInto<DocumentPath, Error = E>,
@@ -193,48 +272,6 @@ impl DocumentPath {
             P::D(d) => d,
         };
         Ok(document_path)
-    }
-
-    /// Returns the `CollectionId` of this `DocumentPath`.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{CollectionId,DocumentPath};
-    /// use std::str::FromStr;
-    ///
-    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
-    /// assert_eq!(
-    ///     document_path.collection_id(),
-    ///     &CollectionId::from_str("chatrooms")?
-    /// );
-    /// #     Ok(())
-    /// # }
-    /// ```
-    pub fn collection_id(&self) -> &CollectionId {
-        self.collection_path.collection_id()
-    }
-
-    /// Returns the `DocumentId` of this `DocumentPath`.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # fn main() -> anyhow::Result<()> {
-    /// use firestore_path::{DocumentId,DocumentPath};
-    /// use std::str::FromStr;
-    ///
-    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
-    /// assert_eq!(
-    ///     document_path.document_id(),
-    ///     &DocumentId::from_str("chatroom1")?
-    /// );
-    /// #     Ok(())
-    /// # }
-    /// ```
-    pub fn document_id(&self) -> &DocumentId {
-        &self.document_id
     }
 
     /// Returns the parent `CollectionPath` of this `DocumentPath`.

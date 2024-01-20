@@ -148,3 +148,59 @@ fn test_document_name_into_doc() -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn test_document_path_doc() -> anyhow::Result<()> {
+    // BREAKING CHANGE: DocumentPath::doc doesn't consume self.
+    let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    assert_eq!(
+        document_path.doc("messages/message1")?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    );
+    assert_eq!(
+        document_path.doc("messages/message1/col/doc")?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    );
+    assert_eq!(
+        document_path.doc(DocumentPath::from_str("messages/message1")?)?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    );
+    assert_eq!(
+        document_path.doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_document_path_into_doc() -> anyhow::Result<()> {
+    // Added: DocumentPath::into_doc
+    let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    assert_eq!(
+        document_path.clone().into_doc("messages/message1")?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    );
+    assert_eq!(
+        document_path
+            .clone()
+            .into_doc("messages/message1/col/doc")?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    );
+    assert_eq!(
+        document_path
+            .clone()
+            .into_doc("messages/message1".to_string())?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    );
+    assert_eq!(
+        document_path
+            .clone()
+            .into_doc(DocumentPath::from_str("messages/message1")?)?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+    );
+    assert_eq!(
+        document_path.into_doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+        DocumentPath::from_str("chatrooms/chatroom1/messages/message1/col/doc")?
+    );
+    Ok(())
+}

@@ -349,7 +349,7 @@ impl DocumentName {
     {
         Ok(DocumentName::new(
             self.root_document_name,
-            self.document_path.doc(document_path)?,
+            self.document_path.into_doc(document_path)?,
         ))
     }
 
