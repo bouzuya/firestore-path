@@ -1,34 +1,42 @@
 //! A Firestore path helper.
 //!
 //! ```rust
-//! use firestore_path::{CollectionId, CollectionName, DatabaseId, DatabaseName, DocumentId, DocumentName, ProjectId};
+//! # fn main() -> anyhow::Result<()> {
+//! use firestore_path::{CollectionId, CollectionName, CollectionPath, DatabaseId, DatabaseName, DocumentId, DocumentName, DocumentPath, ProjectId, RootDocumentName};
 //! use std::str::FromStr;
 //!
-//! fn main() -> anyhow::Result<()> {
-//!     let project_id = ProjectId::from_str("my-project")?;
-//!     let database_id = DatabaseId::from_str("my-database")?;
-//!     let database_name = DatabaseName::new(project_id, database_id);
+//! let project_id = ProjectId::from_str("my-project")?;
+//! let database_id = DatabaseId::from_str("my-database")?;
+//! let database_name = DatabaseName::new(project_id, database_id);
+//! assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
 //!
-//!     let document_name: DocumentName = database_name
-//!         .collection("chatrooms")?
-//!         .doc("chatroom1")?
-//!         .collection("messages")?
-//!         .doc("message1")?;
-//!     assert_eq!(
-//!         document_name.to_string(),
-//!         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
-//!     );
-//!     assert_eq!(document_name.document_id().as_ref(), "message1");
+//! let root_document_name: RootDocumentName = database_name.root_document_name();
+//! assert_eq!(root_document_name.to_string(), "projects/my-project/databases/my-database/documents");
 //!
-//!     let collection_name: CollectionName = document_name.parent();
-//!     assert_eq!(
-//!         collection_name.to_string(),
-//!         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
-//!     );
-//!     assert_eq!(collection_name.collection_id().as_ref(), "messages");
+//! let collection_name: CollectionName = root_document_name.collection("chatrooms")?;
+//! assert_eq!(collection_name.to_string(), "projects/my-project/databases/my-database/documents/chatrooms");
+//! assert_eq!(collection_name.collection_id().as_ref(), "chatrooms");
 //!
-//!     Ok(())
-//! }
+//! let document_name: DocumentName = collection_name.doc("chatroom1")?;
+//! assert_eq!(document_name.to_string(), "projects/my-project/databases/my-database/documents/chatrooms/chatroom1");
+//! assert_eq!(document_name.collection_id().as_ref(), "chatrooms");
+//! assert_eq!(document_name.document_id().as_ref(), "chatroom1");
+//!
+//! let collection_id = CollectionId::from_str("messages")?;
+//! let collection_path = CollectionPath::from(collection_id);
+//! assert_eq!(collection_path.to_string(), "messages");
+//!
+//! let document_id = DocumentId::from_str("message1")?;
+//! let document_path: DocumentPath = collection_path.doc(document_id)?;
+//! assert_eq!(document_path.to_string(), "messages/message1");
+//!
+//! let child_document_name = document_name.doc(document_path)?;
+//! assert_eq!(
+//!     child_document_name.to_string(),
+//!     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+//! );
+//! #     Ok(())
+//! # }
 //! ```
 mod collection_id;
 mod collection_name;
