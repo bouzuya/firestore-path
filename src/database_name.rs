@@ -91,19 +91,19 @@ impl DatabaseName {
     ///     "projects/my-project/databases/my-database"
     /// )?;
     /// assert_eq!(
-    ///     database_name.clone().collection("chatrooms")?,
+    ///     database_name.collection("chatrooms")?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     database_name.clone().collection("chatrooms/chatroom1/messages")?,
+    ///     database_name.collection("chatrooms/chatroom1/messages")?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     database_name.clone().collection(CollectionId::from_str("chatrooms")?)?,
+    ///     database_name.collection(CollectionId::from_str("chatrooms")?)?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms"
     ///     )?
@@ -119,7 +119,56 @@ impl DatabaseName {
     /// # }
     /// ```
     ///
-    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
+    pub fn collection<E, T>(&self, collection_path: T) -> Result<CollectionName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<CollectionPath, Error = E>,
+    {
+        self.clone().into_collection(collection_path)
+    }
+
+    /// Creates a new `CollectionName` by consuming the `DatabaseName` with the provided `collection_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,DatabaseName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str(
+    ///     "projects/my-project/databases/my-database"
+    /// )?;
+    /// assert_eq!(
+    ///     database_name.clone().into_collection("chatrooms")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().into_collection("chatrooms/chatroom1/messages")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.clone().into_collection(CollectionId::from_str("chatrooms")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     database_name.into_collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    ///
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<CollectionPath, Error = E>,

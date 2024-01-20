@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use firestore_path::{
-    CollectionName, CollectionPath, DatabaseName, DocumentId, DocumentName, DocumentPath,
-    RootDocumentName,
+    CollectionId, CollectionName, CollectionPath, DatabaseName, DocumentId, DocumentName,
+    DocumentPath, RootDocumentName,
 };
 
 #[test]
@@ -81,6 +81,33 @@ fn test_collection_path_into_doc() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_database_name_collection() -> anyhow::Result<()> {
+    // BREAKING CHANGE: DatabaseName::collection doesn't consume self.
+    let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    assert_eq!(
+        database_name.collection("chatrooms")?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        database_name.collection("chatrooms/chatroom1/messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        database_name.collection(CollectionId::from_str("chatrooms")?)?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        database_name.collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_database_name_doc() -> anyhow::Result<()> {
     // BREAKING CHANGE: DatabaseName::doc doesn't consume self.
     let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
@@ -106,6 +133,37 @@ fn test_database_name_doc() -> anyhow::Result<()> {
         database_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_database_name_into_collection() -> anyhow::Result<()> {
+    // Added: DatabaseName::into_collection
+    let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    assert_eq!(
+        database_name.clone().into_collection("chatrooms")?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        database_name
+            .clone()
+            .into_collection("chatrooms/chatroom1/messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        database_name
+            .clone()
+            .into_collection(CollectionId::from_str("chatrooms")?)?,
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    assert_eq!(
+        database_name.into_collection(CollectionPath::from_str("chatrooms/chatroom1/messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
         )?
     );
     Ok(())
