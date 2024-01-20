@@ -334,7 +334,7 @@ impl DocumentName {
     {
         Ok(CollectionName::new(
             self.root_document_name,
-            self.document_path.collection(collection_path)?,
+            self.document_path.into_collection(collection_path)?,
         ))
     }
 
