@@ -86,11 +86,47 @@ impl CollectionPath {
     /// use std::str::FromStr;
     ///
     /// let collection_path = CollectionPath::from_str("chatrooms")?;
-    /// assert_eq!(collection_path.doc("chatroom1")?, DocumentPath::from_str("chatrooms/chatroom1")?);
+    /// assert_eq!(
+    ///     collection_path.doc("chatroom1")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1")?
+    /// );
+    /// assert_eq!(
+    ///     collection_path.doc("chatroom2")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom2")?
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn doc<E, T>(self, document_id: T) -> Result<DocumentPath, Error>
+    pub fn doc<E, T>(&self, document_id: T) -> Result<DocumentPath, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentId, Error = E>,
+    {
+        self.clone().into_doc(document_id)
+    }
+
+    /// Create a new `DocumentPath` by consuming the `CollectionPath` with the provided `document_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_path = CollectionPath::from_str("chatrooms")?;
+    /// assert_eq!(
+    ///     collection_path.clone().into_doc("chatroom1")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom1")?
+    /// );
+    /// assert_eq!(
+    ///     collection_path.into_doc("chatroom2")?,
+    ///     DocumentPath::from_str("chatrooms/chatroom2")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_doc<E, T>(self, document_id: T) -> Result<DocumentPath, Error>
     where
         E: std::fmt::Display,
         T: TryInto<DocumentId, Error = E>,
@@ -224,6 +260,11 @@ mod tests {
             document_path,
             DocumentPath::from_str("chatrooms/chatroom1")?
         );
+        let document_path = collection_path.doc("chatroom2")?;
+        assert_eq!(
+            document_path,
+            DocumentPath::from_str("chatrooms/chatroom2")?
+        );
 
         let collection_path = CollectionPath::from_str("chatrooms/chatroom1/messages")?;
         let document_path = collection_path.doc("message1")?;
@@ -291,6 +332,33 @@ mod tests {
                 assert_eq!(CollectionPath::from_str(s)?.to_string(), s);
             }
         }
+        Ok(())
+    }
+
+    #[test]
+    fn test_into_doc() -> anyhow::Result<()> {
+        let collection_path = CollectionPath::from_str("chatrooms")?;
+        let document_path = collection_path.into_doc("chatroom1")?;
+        assert_eq!(
+            document_path,
+            DocumentPath::from_str("chatrooms/chatroom1")?
+        );
+
+        let collection_path = CollectionPath::from_str("chatrooms/chatroom1/messages")?;
+        let document_path = collection_path.into_doc("message1")?;
+        assert_eq!(
+            document_path,
+            DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?
+        );
+
+        let collection_path = CollectionPath::from_str("chatrooms")?;
+        let document_id = DocumentId::from_str("chatroom1")?;
+        let document_path = collection_path.into_doc(document_id)?;
+        assert_eq!(
+            document_path,
+            DocumentPath::from_str("chatrooms/chatroom1")?
+        );
+
         Ok(())
     }
 
