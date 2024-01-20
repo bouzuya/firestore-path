@@ -242,7 +242,7 @@ impl DocumentPath {
         Ok(collection_path)
     }
 
-    /// Creates a new `DocumentPath` by consuming the `DocumentPath` and the provided `document_path`.
+    /// Creates a new `DocumentPath` by consuming the `DocumentPath` with the provided `document_path`.
     ///
     /// # Examples
     ///

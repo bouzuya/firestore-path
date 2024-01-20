@@ -338,7 +338,7 @@ impl DocumentName {
         ))
     }
 
-    /// Creates a new `DocumentName` by consuming the `DocumentName` and the provided `document_path`.
+    /// Creates a new `DocumentName` by consuming the `DocumentName` with the provided `document_path`.
     ///
     /// # Examples
     ///

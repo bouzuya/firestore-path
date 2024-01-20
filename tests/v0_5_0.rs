@@ -53,24 +53,24 @@ fn test_root_document_name_collection() -> anyhow::Result<()> {
 #[ignore = "RootDocumentName::doc has been replaced by RootDocumentName::into_doc in v0.7.0"]
 #[test]
 fn test_root_document_name_doc() -> anyhow::Result<()> {
-    let root_document_name =
-        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
-    let document_name = root_document_name.clone().into_doc("chatrooms/chatroom1")?;
-    assert_eq!(
-        document_name,
-        DocumentName::from_str(
-            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
-        )?
-    );
+    // let root_document_name =
+    //     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?;
+    // let document_name = root_document_name.clone().doc("chatrooms/chatroom1")?;
+    // assert_eq!(
+    //     document_name,
+    //     DocumentName::from_str(
+    //         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    //     )?
+    // );
 
-    let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
-    let document_name = root_document_name.into_doc(document_path)?;
-    assert_eq!(
-        document_name,
-        DocumentName::from_str(
-            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
-        )?
-    );
+    // let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    // let document_name = root_document_name.doc(document_path)?;
+    // assert_eq!(
+    //     document_name,
+    //     DocumentName::from_str(
+    //         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    //     )?
+    // );
     Ok(())
 }
 
