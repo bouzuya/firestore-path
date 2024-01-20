@@ -171,10 +171,51 @@ impl CollectionName {
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
     ///     )?
     /// );
+    /// assert_eq!(
+    ///     collection_name.doc("chatroom2")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom2"
+    ///     )?
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn doc<E, T>(self, document_id: T) -> Result<DocumentName, Error>
+    pub fn doc<E, T>(&self, document_id: T) -> Result<DocumentName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentId, Error = E>,
+    {
+        self.clone().into_doc(document_id)
+    }
+
+    /// Creates a new `DocumentName` by consuming the `CollectionName` with the provided `document_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.clone().into_doc("chatroom1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     collection_name.into_doc("chatroom2")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom2"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_doc<E, T>(self, document_id: T) -> Result<DocumentName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<DocumentId, Error = E>,
@@ -350,6 +391,13 @@ mod tests {
                 "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
             )?
         );
+        let document_name = collection_name.doc("chatroom2")?;
+        assert_eq!(
+            document_name,
+            DocumentName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom2"
+            )?
+        );
 
         let collection_name = CollectionName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages",
@@ -442,6 +490,45 @@ mod tests {
                 assert_eq!(CollectionName::from_str(s)?.to_string(), s);
             }
         }
+        Ok(())
+    }
+
+    #[test]
+    fn test_into_doc() -> anyhow::Result<()> {
+        let collection_name = CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms",
+        )?;
+        let document_name = collection_name.into_doc("chatroom1")?;
+        assert_eq!(
+            document_name,
+            DocumentName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+            )?
+        );
+
+        let collection_name = CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages",
+        )?;
+        let document_name = collection_name.into_doc("message1")?;
+        assert_eq!(
+            document_name,
+            DocumentName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+            )?
+        );
+
+        let collection_name = CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms",
+        )?;
+        let document_id = DocumentId::from_str("chatroom1")?;
+        let document_name = collection_name.into_doc(document_id)?;
+        assert_eq!(
+            document_name,
+            DocumentName::from_str(
+                "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+            )?
+        );
+
         Ok(())
     }
 
