@@ -203,6 +203,39 @@ fn test_database_name_into_doc() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_document_name_collection() -> anyhow::Result<()> {
+    // BREAKING CHANGE: DocumentName::collection doesn't consume self.
+    let document_name = DocumentName::from_str(
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+    )?;
+    assert_eq!(
+        document_name.collection("messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        document_name.collection("messages/message1/col")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+        )?
+    );
+    assert_eq!(
+        document_name.collection(CollectionId::from_str("messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        document_name.collection(CollectionPath::from_str("messages/message1/col")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_document_name_doc() -> anyhow::Result<()> {
     // BREAKING CHANGE: DocumentName::doc doesn't consume self.
     let document_name = DocumentName::from_str(
@@ -230,6 +263,41 @@ fn test_document_name_doc() -> anyhow::Result<()> {
         document_name.doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_document_name_into_collection() -> anyhow::Result<()> {
+    // Added: DocumentName::into_collection
+    let document_name = DocumentName::from_str(
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+    )?;
+    assert_eq!(
+        document_name.clone().into_collection("messages")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        document_name.clone().into_collection("messages/message1/col")?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+        )?
+    );
+    assert_eq!(
+        document_name
+            .clone()
+            .into_collection(CollectionId::from_str("messages")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        document_name.into_collection(CollectionPath::from_str("messages/message1/col")?)?,
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
         )?
     );
     Ok(())

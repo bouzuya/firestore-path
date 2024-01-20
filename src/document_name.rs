@@ -117,30 +117,18 @@ impl DocumentName {
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
     ///     )?
     /// );
-    ///
-    /// let document_name = DocumentName::from_str(
-    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
-    /// )?;
     /// assert_eq!(
     ///     document_name.collection("messages/message1/col")?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
     ///     )?
     /// );
-    ///
-    /// let document_name = DocumentName::from_str(
-    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
-    /// )?;
     /// assert_eq!(
     ///     document_name.collection(CollectionId::from_str("messages")?)?,
     ///     CollectionName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
     ///     )?
     /// );
-    ///
-    /// let document_name = DocumentName::from_str(
-    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
-    /// )?;
     /// assert_eq!(
     ///     document_name.collection(CollectionPath::from_str("messages/message1/col")?)?,
     ///     CollectionName::from_str(
@@ -151,15 +139,12 @@ impl DocumentName {
     /// # }
     /// ```
     ///
-    pub fn collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
+    pub fn collection<E, T>(&self, collection_path: T) -> Result<CollectionName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<CollectionPath, Error = E>,
     {
-        Ok(CollectionName::new(
-            self.root_document_name,
-            self.document_path.collection(collection_path)?,
-        ))
+        self.clone().into_collection(collection_path)
     }
 
     /// Returns the `CollectionId` of this `DocumentName`.
@@ -300,6 +285,57 @@ impl DocumentName {
     ///
     pub fn document_path(&self) -> &DocumentPath {
         &self.document_path
+    }
+
+    /// Creates a new `CollectionName` from this `DocumentName` and `collection_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,CollectionPath,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.clone().into_collection("messages")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().into_collection("messages/message1/col")?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().into_collection(CollectionId::from_str("messages")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.into_collection(CollectionPath::from_str("messages/message1/col")?)?,
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_collection<E, T>(self, collection_path: T) -> Result<CollectionName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<CollectionPath, Error = E>,
+    {
+        Ok(CollectionName::new(
+            self.root_document_name,
+            self.document_path.collection(collection_path)?,
+        ))
     }
 
     /// Creates a new `DocumentName` by consuming the `DocumentName` and the provided `document_path`.
@@ -490,7 +526,7 @@ mod tests {
         let document_name = DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
         )?;
-        let collection_name = document_name.collection("messages")?;
+        let collection_name = document_name.into_collection("messages")?;
         assert_eq!(
             collection_name,
             CollectionName::from_str(
@@ -501,7 +537,7 @@ mod tests {
         let document_name = DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1",
         )?;
-        let collection_name = document_name.collection("col")?;
+        let collection_name = document_name.into_collection("col")?;
         assert_eq!(
             collection_name,
             CollectionName::from_str(
@@ -513,7 +549,7 @@ mod tests {
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
         )?;
         let collection_id = CollectionId::from_str("messages")?;
-        let collection_name = document_name.collection(collection_id)?;
+        let collection_name = document_name.into_collection(collection_id)?;
         assert_eq!(
             collection_name,
             CollectionName::from_str(
@@ -528,7 +564,7 @@ mod tests {
         let document_name = DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
         )?;
-        let collection_name = document_name.collection("messages/message1/col")?;
+        let collection_name = document_name.into_collection("messages/message1/col")?;
         assert_eq!(
             collection_name,
             CollectionName::from_str(
@@ -540,7 +576,7 @@ mod tests {
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
         )?;
         let collection_path = CollectionPath::from_str("messages/message1/col")?;
-        let collection_name = document_name.collection(collection_path)?;
+        let collection_name = document_name.into_collection(collection_path)?;
         assert_eq!(
             collection_name,
             CollectionName::from_str(
