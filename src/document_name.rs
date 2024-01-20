@@ -222,19 +222,19 @@ impl DocumentName {
     ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
     /// )?;
     /// assert_eq!(
-    ///     document_name.clone().doc("messages/message1")?,
+    ///     document_name.doc("messages/message1")?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     document_name.clone().doc("messages/message1/col/doc")?,
+    ///     document_name.doc("messages/message1/col/doc")?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
     ///     )?
     /// );
     /// assert_eq!(
-    ///     document_name.clone().doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     document_name.doc(DocumentPath::from_str("messages/message1")?)?,
     ///     DocumentName::from_str(
     ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
     ///     )?
@@ -249,15 +249,12 @@ impl DocumentName {
     /// # }
     /// ```
     ///
-    pub fn doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
+    pub fn doc<E, T>(&self, document_path: T) -> Result<DocumentName, Error>
     where
         E: std::fmt::Display,
         T: TryInto<DocumentPath, Error = E>,
     {
-        Ok(DocumentName::new(
-            self.root_document_name,
-            self.document_path.doc(document_path)?,
-        ))
+        self.clone().into_doc(document_path)
     }
 
     /// Returns the `DocumentId` of this `DocumentName`.
@@ -303,6 +300,57 @@ impl DocumentName {
     ///
     pub fn document_path(&self) -> &DocumentPath {
         &self.document_path
+    }
+
+    /// Creates a new `DocumentName` by consuming the `DocumentName` and the provided `document_path`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentName,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.clone().into_doc("messages/message1")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().into_doc("messages/message1/col/doc")?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.clone().into_doc(DocumentPath::from_str("messages/message1")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    ///     )?
+    /// );
+    /// assert_eq!(
+    ///     document_name.into_doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+    ///     DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_doc<E, T>(self, document_path: T) -> Result<DocumentName, Error>
+    where
+        E: std::fmt::Display,
+        T: TryInto<DocumentPath, Error = E>,
+    {
+        Ok(DocumentName::new(
+            self.root_document_name,
+            self.document_path.doc(document_path)?,
+        ))
     }
 
     /// Returns the parent `CollectionName` of this `DocumentName`.

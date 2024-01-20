@@ -76,3 +76,75 @@ fn test_collection_path_into_doc() -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn test_document_name_doc() -> anyhow::Result<()> {
+    // BREAKING CHANGE: DocumentName::doc doesn't consume self.
+    let document_name = DocumentName::from_str(
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+    )?;
+    assert_eq!(
+        document_name.doc("messages/message1")?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    assert_eq!(
+        document_name.doc("messages/message1/col/doc")?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+        )?
+    );
+    assert_eq!(
+        document_name.doc(DocumentPath::from_str("messages/message1")?)?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    assert_eq!(
+        document_name.doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_document_name_into_doc() -> anyhow::Result<()> {
+    // Added: DocumentName::into_doc
+    let document_name = DocumentName::from_str(
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+    )?;
+    assert_eq!(
+        document_name.clone().into_doc("messages/message1")?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    assert_eq!(
+        document_name.clone().into_doc("messages/message1/col/doc")?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+        )?
+    );
+    assert_eq!(
+        document_name.clone().into_doc("messages/message1".to_string())?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    assert_eq!(
+        document_name.clone().into_doc(DocumentPath::from_str("messages/message1")?)?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+        )?
+    );
+    assert_eq!(
+        document_name.into_doc(DocumentPath::from_str("messages/message1/col/doc")?)?,
+        DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
+        )?
+    );
+    Ok(())
+}
