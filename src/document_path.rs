@@ -317,6 +317,31 @@ impl DocumentPath {
         Ok(document_path)
     }
 
+    /// Consumes the `DocumentPath`, returning the parent `CollectionPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    /// assert_eq!(
+    ///     document_path.clone().into_parent(),
+    ///     CollectionPath::from_str("chatrooms")?
+    /// );
+    /// assert_eq!(
+    ///     document_path.into_parent(),
+    ///     CollectionPath::from_str("chatrooms")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_parent(self) -> CollectionPath {
+        *self.collection_path
+    }
+
     /// Returns the parent `CollectionPath` of this `DocumentPath`.
     ///
     /// # Examples

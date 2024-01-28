@@ -107,3 +107,24 @@ fn test_document_name_into_parent() -> anyhow::Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn test_document_path_into_parent() -> anyhow::Result<()> {
+    // Added: DocumentPath::into_parent
+    use firestore_path::{CollectionPath, DocumentPath};
+    let document_path = DocumentPath::from_str("chatrooms/chatroom1")?;
+    assert_eq!(
+        document_path.into_parent(),
+        CollectionPath::from_str("chatrooms")?
+    );
+    let document_path = DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?;
+    assert_eq!(
+        document_path.clone().into_parent(),
+        CollectionPath::from_str("chatrooms/chatroom1/messages")?
+    );
+    assert_eq!(
+        document_path.into_parent(),
+        CollectionPath::from_str("chatrooms/chatroom1/messages")?
+    );
+    Ok(())
+}
