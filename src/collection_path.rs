@@ -138,6 +138,28 @@ impl CollectionPath {
         Ok(document_path)
     }
 
+    /// Consumes the `CollectionPath`, returning the parent `DocumentPath`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionPath,DocumentPath};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_path = CollectionPath::from_str("chatrooms")?;
+    /// assert_eq!(collection_path.into_parent(), None);
+    ///
+    /// let collection_path = CollectionPath::from_str("chatrooms/chatroom1/messages")?;
+    /// assert_eq!(collection_path.clone().into_parent(), Some(DocumentPath::from_str("chatrooms/chatroom1")?));
+    /// assert_eq!(collection_path.into_parent(), Some(DocumentPath::from_str("chatrooms/chatroom1")?));
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_parent(self) -> Option<DocumentPath> {
+        self.document_path
+    }
+
     /// Returns the parent `DocumentPath` of this `CollectionPath`.
     ///
     /// # Examples
@@ -374,19 +396,6 @@ mod tests {
         assert_eq!(
             collection_path.to_string(),
             format!("{}/{}", document_path, collection_id)
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn test_parent() -> anyhow::Result<()> {
-        let collection_path = CollectionPath::from_str("chatrooms")?;
-        assert_eq!(collection_path.parent(), None);
-
-        let collection_path = CollectionPath::from_str("chatrooms/chatroom1/messages")?;
-        assert_eq!(
-            collection_path.parent(),
-            Some(&DocumentPath::from_str("chatrooms/chatroom1")?)
         );
         Ok(())
     }
