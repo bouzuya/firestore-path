@@ -389,6 +389,35 @@ impl DocumentName {
         ))
     }
 
+    /// Consumes the `DocumentName`, returning the parent `CollectionName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.into_parent(),
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn into_parent(self) -> CollectionName {
+        CollectionName::new(
+            self.root_document_name,
+            CollectionPath::from(self.document_path),
+        )
+    }
+
     /// Returns the parent `CollectionName` of this `DocumentName`.
     ///
     /// # Examples
@@ -407,15 +436,18 @@ impl DocumentName {
     ///         "projects/my-project/databases/my-database/documents/chatrooms"
     ///     )?
     /// );
+    /// assert_eq!(
+    ///     document_name.parent(),
+    ///     CollectionName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms"
+    ///     )?
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
     ///
-    pub fn parent(self) -> CollectionName {
-        CollectionName::new(
-            self.root_document_name,
-            CollectionPath::from(self.document_path),
-        )
+    pub fn parent(&self) -> CollectionName {
+        self.clone().into_parent()
     }
 
     /// Returns the `RootDocumentName` of this `DocumentName`.
@@ -679,7 +711,7 @@ mod tests {
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
         )?;
         assert_eq!(
-            document_name.parent(),
+            document_name.into_parent(),
             CollectionName::from_str(
                 "projects/my-project/databases/my-database/documents/chatrooms",
             )?

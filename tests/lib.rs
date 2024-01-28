@@ -19,7 +19,7 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
         document_name.document_id(),
         &DocumentId::from_str("message1")?
     );
-    let collection_name = document_name.parent();
+    let collection_name = document_name.into_parent();
     assert_eq!(
         collection_name.database_name(),
         &DatabaseName::from_str("projects/my-project/databases/my-database")?,
@@ -39,7 +39,7 @@ fn test_collection_id_document_id_and_parent() -> anyhow::Result<()> {
         document_name.document_id(),
         &DocumentId::from_str("chatroom1")?
     );
-    let collection_name = document_name.parent();
+    let collection_name = document_name.into_parent();
     assert_eq!(
         collection_name.collection_id(),
         &CollectionId::from_str("chatrooms")?

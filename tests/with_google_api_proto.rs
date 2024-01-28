@@ -40,7 +40,6 @@ fn test_create_document_request() -> anyhow::Result<()> {
 
         let request = CreateDocumentRequest {
             parent: document_name
-                .clone()
                 .parent()
                 .parent()
                 .map(|parent_document_name| parent_document_name.to_string())
