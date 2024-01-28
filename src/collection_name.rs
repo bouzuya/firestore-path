@@ -228,6 +228,44 @@ impl CollectionName {
         Ok(document_name)
     }
 
+    /// Consumes the `CollectionName`, returning the parent `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionId,CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// assert_eq!(collection_name.into_parent(), None);
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+    /// )?;
+    /// assert_eq!(
+    ///     collection_name.clone().into_parent(),
+    ///     Some(DocumentName::from_str(
+    ///       "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
+    /// assert_eq!(
+    ///     collection_name.into_parent(),
+    ///     Some(DocumentName::from_str(
+    ///       "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_parent(self) -> Option<DocumentName> {
+        Option::<DocumentPath>::from(self.collection_path).map(|document_path| {
+            DocumentName::new(DatabaseName::from(self.root_document_name), document_path)
+        })
+    }
+
     /// Returns the parent `DocumentName` of this `CollectionName`.
     ///
     /// # Examples
@@ -251,13 +289,17 @@ impl CollectionName {
     ///       "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
     ///     )?)
     /// );
+    /// assert_eq!(
+    ///     collection_name.parent(),
+    ///     Some(DocumentName::from_str(
+    ///       "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn parent(self) -> Option<DocumentName> {
-        Option::<DocumentPath>::from(self.collection_path).map(|document_path| {
-            DocumentName::new(DatabaseName::from(self.root_document_name), document_path)
-        })
+    pub fn parent(&self) -> Option<DocumentName> {
+        self.clone().into_parent()
     }
 
     /// Returns the `RootDocumentName` of this `CollectionName`.
@@ -536,12 +578,12 @@ mod tests {
     fn test_parent() -> anyhow::Result<()> {
         let s = "projects/my-project/databases/my-database/documents/chatrooms";
         let collection_name = CollectionName::from_str(s)?;
-        assert_eq!(collection_name.parent(), None);
+        assert_eq!(collection_name.into_parent(), None);
 
         let s = "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages";
         let collection_name = CollectionName::from_str(s)?;
         assert_eq!(
-            collection_name.parent(),
+            collection_name.into_parent(),
             Some(DocumentName::from_str(
                 "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
             )?)
