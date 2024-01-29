@@ -266,6 +266,32 @@ impl CollectionName {
         })
     }
 
+    /// Consumes the `CollectionName`, returning the `RootDocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let collection_name = CollectionName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms"
+    /// )?;
+    /// let root_document_name = collection_name.into_root_document_name();
+    /// assert_eq!(
+    ///     root_document_name,
+    ///     RootDocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents"
+    ///     )?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_root_document_name(self) -> RootDocumentName {
+        self.root_document_name
+    }
+
     /// Returns the parent `DocumentName` of this `CollectionName`.
     ///
     /// # Examples

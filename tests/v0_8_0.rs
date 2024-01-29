@@ -1,6 +1,22 @@
 use std::str::FromStr;
 
 #[test]
+fn test_collection_name_into_root_document_name() -> anyhow::Result<()> {
+    // Added: CollectionName::into_root_document_name
+    use firestore_path::{CollectionName, RootDocumentName};
+    use std::str::FromStr as _;
+
+    let collection_name =
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?;
+    let root_document_name = collection_name.into_root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_collection_name_parent() -> anyhow::Result<()> {
     // BREAKING CHANGE: CollectionName::parent doesn't consume self.
     use firestore_path::{CollectionName, DocumentName};
