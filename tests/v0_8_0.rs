@@ -64,6 +64,59 @@ fn test_collection_path_into_parent() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_document_name_into_parent() -> anyhow::Result<()> {
+    // Added: DocumentName::into_parent
+    use firestore_path::{CollectionName, DocumentName};
+    let s = "projects/my-project/databases/my-database/documents/chatrooms/chatroom1";
+    let document_name = DocumentName::from_str(s)?;
+    assert_eq!(
+        document_name.into_parent(),
+        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
+    );
+    let s =
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1";
+    let document_name = DocumentName::from_str(s)?;
+    assert_eq!(
+        document_name.clone().into_parent(),
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    assert_eq!(
+        document_name.into_parent(),
+        CollectionName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
+        )?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_document_name_into_parent_document_name() -> anyhow::Result<()> {
+    // Added: DocumentName::into_parent_document_name
+    use firestore_path::DocumentName;
+    let s = "projects/my-project/databases/my-database/documents/chatrooms/chatroom1";
+    let document_name = DocumentName::from_str(s)?;
+    assert_eq!(document_name.into_parent_document_name(), None);
+    let s =
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1";
+    let document_name = DocumentName::from_str(s)?;
+    assert_eq!(
+        document_name.clone().into_parent_document_name(),
+        Some(DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+        )?)
+    );
+    assert_eq!(
+        document_name.into_parent_document_name(),
+        Some(DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+        )?)
+    );
+    Ok(())
+}
+
+#[test]
 fn test_document_name_parent() -> anyhow::Result<()> {
     // BREAKING CHANGE: DocumentName::parent doesn't consume self.
     use firestore_path::{CollectionName, DocumentName};

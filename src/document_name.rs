@@ -418,6 +418,38 @@ impl DocumentName {
         )
     }
 
+    /// Consumes the `DocumentName`, returning the parent `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(document_name.into_parent_document_name(), None);
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.into_parent_document_name(),
+    ///     Some(DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_parent_document_name(self) -> Option<DocumentName> {
+        self.document_path
+            .into_parent()
+            .into_parent()
+            .map(|document_path| DocumentName::new(self.root_document_name, document_path))
+    }
+
     /// Returns the parent `CollectionName` of this `DocumentName`.
     ///
     /// # Examples
