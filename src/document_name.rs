@@ -482,6 +482,35 @@ impl DocumentName {
         self.clone().into_parent()
     }
 
+    /// Returns the parent `DocumentName` of this `DocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{CollectionName,DocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    /// )?;
+    /// assert_eq!(document_name.parent_document_name(), None);
+    /// let document_name = DocumentName::from_str(
+    ///     "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
+    /// )?;
+    /// assert_eq!(
+    ///     document_name.parent_document_name(),
+    ///     Some(DocumentName::from_str(
+    ///         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+    ///     )?)
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn parent_document_name(&self) -> Option<DocumentName> {
+        self.clone().into_parent_document_name()
+    }
+
     /// Returns the `RootDocumentName` of this `DocumentName`.
     ///
     /// # Examples

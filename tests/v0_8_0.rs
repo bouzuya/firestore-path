@@ -134,29 +134,26 @@ fn test_document_name_parent() -> anyhow::Result<()> {
 }
 
 #[test]
-fn test_document_name_into_parent() -> anyhow::Result<()> {
-    // Added: DocumentName::into_parent
-    use firestore_path::{CollectionName, DocumentName};
+fn test_document_name_parent_document_name() -> anyhow::Result<()> {
+    // Add: DocumentName::parent_document_name doesn't consume self.
+    use firestore_path::DocumentName;
     let s = "projects/my-project/databases/my-database/documents/chatrooms/chatroom1";
     let document_name = DocumentName::from_str(s)?;
-    assert_eq!(
-        document_name.into_parent(),
-        CollectionName::from_str("projects/my-project/databases/my-database/documents/chatrooms")?
-    );
+    assert_eq!(document_name.parent_document_name(), None);
     let s =
         "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1";
     let document_name = DocumentName::from_str(s)?;
     assert_eq!(
-        document_name.clone().into_parent(),
-        CollectionName::from_str(
-            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
-        )?
+        document_name.parent_document_name(),
+        Some(DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+        )?)
     );
     assert_eq!(
-        document_name.into_parent(),
-        CollectionName::from_str(
-            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages"
-        )?
+        document_name.parent_document_name(),
+        Some(DocumentName::from_str(
+            "projects/my-project/databases/my-database/documents/chatrooms/chatroom1"
+        )?)
     );
     Ok(())
 }
