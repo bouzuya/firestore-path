@@ -21,7 +21,7 @@ use crate::{
 /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
 /// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
 /// assert_eq!(
-///     database_name.clone().root_document_name(),
+///     database_name.root_document_name(),
 ///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
 /// );
 ///
@@ -301,6 +301,27 @@ impl DatabaseName {
         Ok(DocumentName::new(self, document_path))
     }
 
+    /// Consumes the `DatabaseName`, returning the `RootDocumentName`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> anyhow::Result<()> {
+    /// use firestore_path::{DatabaseName,RootDocumentName};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    /// assert_eq!(
+    ///     database_name.into_root_document_name(),
+    ///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    /// );
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn into_root_document_name(self) -> RootDocumentName {
+        RootDocumentName::new(self)
+    }
+
     /// Returns the `ProjectId` of this `DatabaseName`.
     ///
     /// # Examples
@@ -322,7 +343,7 @@ impl DatabaseName {
         &self.project_id
     }
 
-    /// Creates a new `RootDocumentName` from this `DatabaseName`.
+    /// Returns a new `RootDocumentName` from this `DatabaseName`.
     ///
     /// # Examples
     ///
@@ -339,8 +360,8 @@ impl DatabaseName {
     /// #     Ok(())
     /// # }
     /// ```
-    pub fn root_document_name(self) -> RootDocumentName {
-        RootDocumentName::new(self)
+    pub fn root_document_name(&self) -> RootDocumentName {
+        self.clone().into_root_document_name()
     }
 }
 

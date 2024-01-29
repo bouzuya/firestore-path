@@ -80,6 +80,44 @@ fn test_collection_path_into_parent() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_database_name_into_root_document_name() -> anyhow::Result<()> {
+    // Added: DatabaseName::into_root_document_name
+    use firestore_path::{DatabaseName, RootDocumentName};
+    use std::str::FromStr;
+    let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    let root_document_name = database_name.clone().into_root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    let root_document_name = database_name.into_root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    Ok(())
+}
+
+#[test]
+fn test_database_name_root_document_name() -> anyhow::Result<()> {
+    // BREAKING CHANGE: DatabaseName::root_document_name doesn't consume self.
+    use firestore_path::{DatabaseName, RootDocumentName};
+    use std::str::FromStr;
+    let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+    let root_document_name = database_name.root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    let root_document_name = database_name.root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_document_name_into_parent() -> anyhow::Result<()> {
     // Added: DocumentName::into_parent
     use firestore_path::{CollectionName, DocumentName};
