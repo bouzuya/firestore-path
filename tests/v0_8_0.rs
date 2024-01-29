@@ -133,6 +133,23 @@ fn test_document_name_into_parent_document_name() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_document_name_into_root_document_name() -> anyhow::Result<()> {
+    // Added: DocumentName::into_root_document_name
+    use firestore_path::{DocumentName, RootDocumentName};
+    use std::str::FromStr;
+
+    let document_name = DocumentName::from_str(
+        "projects/my-project/databases/my-database/documents/chatrooms/chatroom1",
+    )?;
+    let root_document_name = document_name.into_root_document_name();
+    assert_eq!(
+        root_document_name,
+        RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+    );
+    Ok(())
+}
+
+#[test]
 fn test_document_name_parent() -> anyhow::Result<()> {
     // BREAKING CHANGE: DocumentName::parent doesn't consume self.
     use firestore_path::{CollectionName, DocumentName};
