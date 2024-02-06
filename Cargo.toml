@@ -14,7 +14,7 @@ thiserror = "1"
 
 [dev-dependencies]
 anyhow = "1.0.79"
-google-api-proto = { version = "1.476.0", features = ["google-firestore-v1"] }
+google-api-proto = { version = "1.497.0", features = ["google-firestore-v1"] }
 
 # <https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section>
 [lints.rust]
