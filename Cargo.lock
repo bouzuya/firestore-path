@@ -157,9 +157,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "either"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
+checksum = "11157ac094ffbdde99aa67b23417ebdd801842852b500e395a45a9c0aac03e4a"
 
 [[package]]
 name = "equivalent"
@@ -240,9 +240,9 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
 name = "google-api-proto"
-version = "1.503.0"
+version = "1.504.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a213cf5100cb93dad5a272499dfa12b0d60193f39ba5dd196de498c76c5bba9"
+checksum = "86ba23511c6681fb8fe05d58dd9a6a3d9e65718ff25c6377b3f6927b12752081"
 dependencies = [
  "prost",
  "prost-types",
