@@ -24,6 +24,10 @@ use crate::{error::ErrorKind, Error};
 /// let database_id = DatabaseId::from_str("(default)")?;
 /// assert_eq!(database_id.as_ref(), "(default)");
 /// assert_eq!(database_id.to_string(), "(default)");
+///
+/// let database_id = DatabaseId::default();
+/// assert_eq!(database_id.as_ref(), "(default)");
+/// assert_eq!(database_id.to_string(), "(default)");
 /// #     Ok(())
 /// # }
 /// ```
