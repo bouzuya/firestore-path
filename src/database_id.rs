@@ -78,6 +78,20 @@ impl std::convert::TryFrom<String> for DatabaseId {
     }
 }
 
+impl std::default::Default for DatabaseId {
+    /// Returns a new instance with the value `"(default)"`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use firestore_path::DatabaseId;
+    /// assert_eq!(DatabaseId::default().to_string(), "(default)");
+    /// ```
+    fn default() -> Self {
+        Self("(default)".to_string())
+    }
+}
+
 impl std::fmt::Display for DatabaseId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
