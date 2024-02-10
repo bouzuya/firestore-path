@@ -27,6 +27,8 @@ pub(crate) enum ErrorKind {
     MatchesReservedIdPattern,
     #[error("not contains slash")]
     NotContainsSlash,
+    #[error("project id conversion {0}")]
+    ProjectIdConversion(String),
     #[error("single period or double periods")]
     SinglePeriodOrDoublePeriods,
     #[error("starts with non letter")]

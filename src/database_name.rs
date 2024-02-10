@@ -78,6 +78,37 @@ impl DatabaseName {
         }
     }
 
+    /// Creates a new `DatabaseName` with the provided `project_id` and default `database_id`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn test_database_name_from_project_id() -> Result<(), firestore_path::Error> {
+    /// use firestore_path::{DatabaseName, ProjectId};
+    /// use std::str::FromStr;
+    ///
+    /// let database_name = DatabaseName::from_project_id("my-project")?;
+    /// assert_eq!(database_name.to_string(), "projects/my-project/databases/(default)");
+    /// let project_id = ProjectId::from_str("my-project")?;
+    /// let database_name = DatabaseName::from_project_id(project_id)?;
+    /// assert_eq!(database_name.to_string(), "projects/my-project/databases/(default)");
+    /// #     Ok(())
+    /// # }
+    /// ```
+    ///
+    pub fn from_project_id<P>(project_id: P) -> Result<Self, Error>
+    where
+        P: TryInto<ProjectId>,
+        P::Error: std::fmt::Display,
+    {
+        Ok(Self {
+            database_id: DatabaseId::default(),
+            project_id: project_id
+                .try_into()
+                .map_err(|e| Error::from(ErrorKind::ProjectIdConversion(e.to_string())))?,
+        })
+    }
+
     /// Creates a new `CollectionName` from this `DatabaseName` and `collection_path`.
     ///
     /// # Examples
