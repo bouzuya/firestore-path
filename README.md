@@ -17,6 +17,10 @@ let project_id = ProjectId::from_str("my-project")?;
 let database_id = DatabaseId::from_str("my-database")?;
 let database_name = DatabaseName::new(project_id, database_id);
 assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
+// assert_eq!(
+//     DatabaseName::from_project_id("my-project")?.to_string(),
+//     "projects/my-project/databases/(default)"
+// );
 
 let root_document_name: RootDocumentName = database_name.root_document_name();
 assert_eq!(root_document_name.to_string(), "projects/my-project/databases/my-database/documents");

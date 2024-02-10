@@ -18,16 +18,17 @@ use crate::{
 /// use firestore_path::{DatabaseId,DatabaseName,ProjectId,RootDocumentName};
 /// use std::str::FromStr;
 ///
-/// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
-/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
+/// let database_name = DatabaseName::from_project_id("my-project")?;
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/(default)");
+///
 /// assert_eq!(
 ///     database_name.root_document_name(),
-///     RootDocumentName::from_str("projects/my-project/databases/my-database/documents")?
+///     RootDocumentName::from_str("projects/my-project/databases/(default)/documents")?
 /// );
 ///
 /// assert_eq!(
 ///     database_name.database_id(),
-///     &DatabaseId::from_str("my-database")?
+///     &DatabaseId::from_str("(default)")?
 /// );
 /// assert_eq!(
 ///     database_name.project_id(),
@@ -36,13 +37,25 @@ use crate::{
 ///
 /// assert_eq!(
 ///     DatabaseId::from(database_name.clone()),
-///     DatabaseId::from_str("my-database")?
+///     DatabaseId::from_str("(default)")?
 /// );
 /// assert_eq!(
 ///     ProjectId::from(database_name.clone()),
 ///     ProjectId::from_str("my-project")?
 /// );
 ///
+/// let database_name = DatabaseName::from_str("projects/my-project/databases/my-database")?;
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
+///
+/// let project_id = ProjectId::from_str("my-project")?;
+/// let database_id = DatabaseId::from_str("my-database")?;
+/// let database_name = DatabaseName::new(project_id, database_id);
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/my-database");
+///
+/// let project_id = ProjectId::from_str("my-project")?;
+/// let database_id = DatabaseId::default();
+/// let database_name = DatabaseName::new(project_id, database_id);
+/// assert_eq!(database_name.to_string(), "projects/my-project/databases/(default)");
 /// #     Ok(())
 /// # }
 /// ```
