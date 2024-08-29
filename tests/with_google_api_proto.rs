@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, str::FromStr as _};
 
 use firestore_path::{DatabaseName, DocumentName};
-use google_api_proto::google::firestore::v1::{
+use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
     precondition::ConditionType, BeginTransactionRequest, CreateDocumentRequest,
     DeleteDocumentRequest, Document, Precondition,
 };
