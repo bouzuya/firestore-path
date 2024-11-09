@@ -10,11 +10,11 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/bouzuya/firestore-path"
 
 [dependencies]
-thiserror = "1"
+thiserror = "2"
 
 [dev-dependencies]
-anyhow = "1.0.79"
-googleapis-tonic-google-firestore-v1 = { version = "0.8.0", default-features = false, features = ["bytes", "btree-map"] }
+anyhow = "1"
+googleapis-tonic-google-firestore-v1 = { version = "0.10.0", default-features = false, features = ["bytes", "btree-map"] }
 
 # <https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section>
 [lints.rust]
