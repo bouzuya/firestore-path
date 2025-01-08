@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 #[test]
 fn test_impl_default_for_database_id() {
     // Added: impl Default for DatabaseId

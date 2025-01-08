@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use std::{collections::BTreeMap, str::FromStr as _};
 
 use firestore_path::{DatabaseName, DocumentName};
