@@ -1,6 +1,6 @@
 [package]
 name = "firestore-path"
-version = "1.0.3"
+version = "1.0.4"
 authors = ["bouzuya <m@bouzuya.net>"]
 description = "A Firestore path helper"
 edition = "2021"
