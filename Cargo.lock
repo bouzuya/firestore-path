@@ -102,9 +102,9 @@ checksum = "07e28edb80900c19c28f1072f2e8aeca7fa06b23cd4169cefe1af5aa3260783f"
 
 [[package]]
 name = "googleapis-tonic-google-api"
-version = "0.15.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1b9771732d2f422f01731acd7a499cd4fcbc2a9bce3e63e3abf849c1d76ec55"
+checksum = "05452a6056dec297e3c153a82f384efc18ceceea66d042e48cac923e2b4c1130"
 dependencies = [
  "prost",
  "prost-types",
@@ -113,9 +113,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-firestore-v1"
-version = "0.16.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5cdc9e335ae9c3c915fa8d6663ca25cac75eaf12d4b7dd5404dfe273afa6802"
+checksum = "2006c09863ce029107c4073556954015c221fab7acb63a33dd7a686ca72d714c"
 dependencies = [
  "googleapis-tonic-google-api",
  "googleapis-tonic-google-rpc",
@@ -127,9 +127,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-rpc"
-version = "0.10.0"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b8667c6b37f3700520cc1f1b1051e35770bcb1261590ccdaa12b0c4b98d3890"
+checksum = "321f49d68c2cd19831b0e7121570397c2c67a5444bbe15af6608f9bf5dc9bd78"
 dependencies = [
  "prost",
  "prost-types",
@@ -138,9 +138,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-type"
-version = "0.9.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9ca16bb6962285d07e6dfa36decc4f601f4e145dcf8dff2ab82555abdbfeb40"
+checksum = "b490cfde6529d62f7408101d6101c411b2ef869440e10fbbb8011cb1848cf55e"
 dependencies = [
  "prost",
  "prost-types",
@@ -374,9 +374,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.12.3"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "877c5b330756d856ffcc4553ab34a5684481ade925ecc54bcd1bf02b1d0d4d52"
+checksum = "85839f0b32fd242bb3209262371d07feda6d780d16ee9d2bc88581b89da1549b"
 dependencies = [
  "async-trait",
  "base64",
