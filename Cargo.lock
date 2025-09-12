@@ -108,9 +108,9 @@ checksum = "07e28edb80900c19c28f1072f2e8aeca7fa06b23cd4169cefe1af5aa3260783f"
 
 [[package]]
 name = "googleapis-tonic-google-api"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4642a9728094062d71ee8ac7c721c5c3f3fb0cfe391b1dc23aed613edd476349"
+checksum = "3109a5081ee98e069e28db714cb629682ddaea6ee50ed79f0ed5bae9dba2b87c"
 dependencies = [
  "prost",
  "prost-types",
@@ -120,9 +120,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-firestore-v1"
-version = "0.26.0"
+version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cd24f6d635eae6beec42b48001193a6afc15d1e052c5fd7ed0db1cf8b5a097e"
+checksum = "7becc098894c9002115baaaeadf12aa6a83a2c8f7906f5465f79aaaa2ca49753"
 dependencies = [
  "googleapis-tonic-google-api",
  "googleapis-tonic-google-rpc",
@@ -135,9 +135,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-rpc"
-version = "0.20.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a8952ea8a4a6433fec7ca21e090b21b1592c4db45946d6b63ed519e30f1e437"
+checksum = "40769d418133a5519116520026fce19ab6c7b66c134c92d170c97312caef2896"
 dependencies = [
  "prost",
  "prost-types",
@@ -147,9 +147,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-type"
-version = "0.18.0"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15521780bc319b19dd8fac73df971beb1be9ef5728d97f1f9b237e319f081b30"
+checksum = "446f00e7d0aa7f2dd7102ff6155fc7ec6b3b34860107551a7ad446e93a120091"
 dependencies = [
  "prost",
  "prost-types",
@@ -422,9 +422,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.14.1"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67ac5a8627ada0968acec063a4746bf79588aa03ccb66db2f75d7dce26722a40"
+checksum = "eb7613188ce9f7df5bfe185db26c5814347d110db17920415cf2fbcad85e7203"
 dependencies = [
  "async-trait",
  "base64",
@@ -443,9 +443,9 @@ dependencies = [
 
 [[package]]
 name = "tonic-prost"
-version = "0.14.1"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9c511b9a96d40cb12b7d5d00464446acf3b9105fd3ce25437cfe41c92b1c87d"
+checksum = "66bd50ad6ce1252d87ef024b3d64fe4c3cf54a86fb9ef4c631fdd0ded7aeaa67"
 dependencies = [
  "bytes",
  "prost",
@@ -497,9 +497,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.18"
+version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
+checksum = "f63a545481291138910575129486daeaf8ac54aee4387fe7906919f7830c7d9d"
 
 [[package]]
 name = "wasi"
