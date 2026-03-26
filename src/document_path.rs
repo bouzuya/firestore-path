@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::{error::ErrorKind, CollectionId, CollectionPath, DocumentId, Error};
+use crate::{CollectionId, CollectionPath, DocumentId, Error, error::ErrorKind};
 
 /// A document path.
 ///

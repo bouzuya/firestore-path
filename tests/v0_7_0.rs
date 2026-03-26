@@ -132,7 +132,9 @@ fn test_database_name_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        database_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+        database_name.doc(DocumentPath::from_str(
+            "chatrooms/chatroom1/messages/message1"
+        )?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -182,7 +184,9 @@ fn test_database_name_into_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        database_name.clone().into_doc("chatrooms/chatroom1/messages/message1")?,
+        database_name
+            .clone()
+            .into_doc("chatrooms/chatroom1/messages/message1")?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -196,7 +200,9 @@ fn test_database_name_into_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        database_name.into_doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+        database_name.into_doc(DocumentPath::from_str(
+            "chatrooms/chatroom1/messages/message1"
+        )?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -283,7 +289,9 @@ fn test_document_name_into_collection() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        document_name.clone().into_collection("messages/message1/col")?,
+        document_name
+            .clone()
+            .into_collection("messages/message1/col")?,
         CollectionName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
         )?
@@ -318,19 +326,25 @@ fn test_document_name_into_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        document_name.clone().into_doc("messages/message1/col/doc")?,
+        document_name
+            .clone()
+            .into_doc("messages/message1/col/doc")?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col/doc"
         )?
     );
     assert_eq!(
-        document_name.clone().into_doc("messages/message1".to_string())?,
+        document_name
+            .clone()
+            .into_doc("messages/message1".to_string())?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
     );
     assert_eq!(
-        document_name.clone().into_doc(DocumentPath::from_str("messages/message1")?)?,
+        document_name
+            .clone()
+            .into_doc(DocumentPath::from_str("messages/message1")?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -413,7 +427,9 @@ fn test_document_path_into_collection() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        document_name.clone().into_collection("messages/message1/col")?,
+        document_name
+            .clone()
+            .into_collection("messages/message1/col")?,
         CollectionName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1/col"
         )?
@@ -520,7 +536,9 @@ fn test_root_document_name_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        root_document_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+        root_document_name.doc(DocumentPath::from_str(
+            "chatrooms/chatroom1/messages/message1"
+        )?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -573,7 +591,9 @@ fn test_root_document_name_into_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        root_document_name.clone().into_doc("chatrooms/chatroom1/messages/message1")?,
+        root_document_name
+            .clone()
+            .into_doc("chatrooms/chatroom1/messages/message1")?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?
@@ -587,7 +607,9 @@ fn test_root_document_name_into_doc() -> anyhow::Result<()> {
         )?
     );
     assert_eq!(
-        root_document_name.doc(DocumentPath::from_str("chatrooms/chatroom1/messages/message1")?)?,
+        root_document_name.doc(DocumentPath::from_str(
+            "chatrooms/chatroom1/messages/message1"
+        )?)?,
         DocumentName::from_str(
             "projects/my-project/databases/my-database/documents/chatrooms/chatroom1/messages/message1"
         )?

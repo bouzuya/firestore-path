@@ -4,8 +4,8 @@ use std::{collections::BTreeMap, str::FromStr as _};
 
 use firestore_path::{DatabaseName, DocumentName};
 use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-    precondition::ConditionType, BeginTransactionRequest, CreateDocumentRequest,
-    DeleteDocumentRequest, Document, Precondition,
+    BeginTransactionRequest, CreateDocumentRequest, DeleteDocumentRequest, Document, Precondition,
+    precondition::ConditionType,
 };
 
 #[test]

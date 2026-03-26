@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use crate::{
-    error::ErrorKind, CollectionName, CollectionPath, DatabaseId, DatabaseName, DocumentName,
-    DocumentPath, Error, ProjectId,
+    CollectionName, CollectionPath, DatabaseId, DatabaseName, DocumentName, DocumentPath, Error,
+    ProjectId, error::ErrorKind,
 };
 
 /// A root document name.

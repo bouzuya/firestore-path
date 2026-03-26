@@ -1,4 +1,4 @@
-use crate::{error::ErrorKind, Error};
+use crate::{Error, error::ErrorKind};
 
 /// A database id.
 ///
